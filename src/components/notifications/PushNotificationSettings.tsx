@@ -28,7 +28,7 @@ import {
   EmojiEvents as AchievementIcon,
   Group as SocialIcon,
   TrendingUp as ProgressIcon,
-  Shield as SecurityIcon,
+  Lock as SecurityIcon,
 } from '@mui/icons-material';
 import { usePushNotifications } from '../../hooks/usePushNotifications';
 import { useResponsive } from '../../hooks/useResponsive';

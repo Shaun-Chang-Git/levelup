@@ -17,9 +17,9 @@ import {
 import {
   Close as CloseIcon,
   GetApp as InstallIcon,
-  CloudOff as OfflineIcon,
-  FlashOn as SpeedIcon,
-  Shield as SecurityIcon,
+  WifiOff as OfflineIcon,
+  Timer as SpeedIcon,
+  Lock as SecurityIcon,
   Notifications as NotificationsIcon,
 } from '@mui/icons-material';
 import { useResponsive } from '../../hooks/useResponsive';
