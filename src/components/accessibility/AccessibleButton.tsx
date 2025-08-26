@@ -36,14 +36,14 @@ interface AccessibleButtonBaseProps {
   /** 키보드 이벤트 핸들러 */
   onKeyDown?: (event: React.KeyboardEvent) => void;
   /** 클릭 이벤트 핸들러 */
-  onClick?: (event: React.MouseEvent) => void | Promise<void>;
+  onClick?: (event: React.MouseEvent<HTMLElement>) => void | Promise<void>;
 }
 
-interface AccessibleButtonProps extends ButtonProps, AccessibleButtonBaseProps {}
+interface AccessibleButtonProps extends Omit<ButtonProps, 'onClick'>, AccessibleButtonBaseProps {}
 
-interface AccessibleIconButtonProps extends IconButtonProps, AccessibleButtonBaseProps {}
+interface AccessibleIconButtonProps extends Omit<IconButtonProps, 'onClick'>, AccessibleButtonBaseProps {}
 
-interface AccessibleFabProps extends FabProps, AccessibleButtonBaseProps {}
+interface AccessibleFabProps extends Omit<FabProps, 'onClick'>, AccessibleButtonBaseProps {}
 
 /**
  * 접근성이 향상된 일반 버튼
