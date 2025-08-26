@@ -18,7 +18,7 @@ import {
   TrendingUp as TrendingUpIcon,
   Today as TodayIcon,
   DateRange as AllIcon,
-  LocalFire as FireIcon,
+  LocalFireDepartment as FireIcon,
 } from '@mui/icons-material';
 import { useHabits } from '../hooks/useHabits';
 import { useGoals } from '../hooks/useGoals';

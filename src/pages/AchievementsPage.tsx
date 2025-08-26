@@ -18,7 +18,7 @@ import {
 import {
   EmojiEvents as TrophyIcon,
   Star as StarIcon,
-  LocalFire as FireIcon,
+  LocalFireDepartment as FireIcon,
   Category as CategoryIcon,
 } from '@mui/icons-material';
 import { useAchievements } from '../hooks/useAchievements';

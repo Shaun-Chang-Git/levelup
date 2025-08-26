@@ -19,7 +19,7 @@ import {
   EmojiEvents as TotalPointsIcon,
   TrendingUp as LevelIcon,
   Star as GoalIcon,
-  LocalFire as StreakIcon,
+  LocalFireDepartment as StreakIcon,
   Refresh as RefreshIcon,
   Timer as WeeklyIcon,
   CalendarMonth as MonthlyIcon,

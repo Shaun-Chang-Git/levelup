@@ -19,7 +19,7 @@ import {
 import {
   CheckCircle as CheckIcon,
   RadioButtonUnchecked as UncheckIcon,
-  LocalFire as FireIcon,
+  LocalFireDepartment as FireIcon,
   Edit as EditIcon,
   MoreVert as MoreIcon,
   Undo as UndoIcon,
