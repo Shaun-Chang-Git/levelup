@@ -33,7 +33,7 @@ import {
   Favorite
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
+// import { ko } from 'date-fns/locale/ko';
 import type { GoalShare, GoalShareOptions } from '../../types';
 
 interface GoalShareCardProps {
@@ -157,7 +157,7 @@ const GoalShareCard: React.FC<GoalShareCardProps> = ({
   const formatTime = (dateString: string) => {
     return formatDistanceToNow(new Date(dateString), {
       addSuffix: true,
-      locale: ko
+      // locale: ko
     });
   };
 

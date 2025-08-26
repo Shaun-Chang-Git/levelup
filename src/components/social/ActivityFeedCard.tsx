@@ -28,7 +28,7 @@ import {
   LocalFireDepartment
 } from '@mui/icons-material';
 import { formatDistanceToNow } from 'date-fns';
-import { ko } from 'date-fns/locale';
+// import { ko } from 'date-fns/locale/ko';
 import type { ActivityFeed, ActivityComment } from '../../types';
 
 interface ActivityFeedCardProps {
@@ -128,7 +128,7 @@ const ActivityFeedCard: React.FC<ActivityFeedCardProps> = ({
   const formatTime = (dateString: string) => {
     return formatDistanceToNow(new Date(dateString), {
       addSuffix: true,
-      locale: ko
+      // locale: ko
     });
   };
 
