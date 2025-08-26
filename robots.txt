@@ -1,0 +1,18 @@
+User-agent: *
+Allow: /
+
+# PWA Files
+Allow: /manifest.json
+Allow: /sw.js
+Allow: /offline.html
+
+# Static Assets
+Allow: /static/
+
+# Sitemap
+Sitemap: https://levelup-app.vercel.app/sitemap.xml
+
+# Disallow sensitive paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /.vercel/

@@ -1,0 +1,156 @@
+import { useState, useEffect } from 'react';
+import { Goal, Category } from '../types';
+import { GoalsService } from '../services/goalsService';
+import { useAuth } from '../contexts/AuthContext';
+
+export const useGoals = () => {
+  const { user } = useAuth();
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // 카테고리 로드
+  const loadCategories = async () => {
+    try {
+      const categoriesData = await GoalsService.getCategories();
+      setCategories(categoriesData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '카테고리 로드 실패');
+    }
+  };
+
+  // 목표 로드
+  const loadGoals = async (categoryId?: string, status?: string) => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      setError(null);
+      const goalsData = await GoalsService.getUserGoals(user.id, categoryId, status);
+      setGoals(goalsData);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : '목표 로드 실패');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 목표 생성
+  const createGoal = async (goalData: Omit<Goal, 'id' | 'created_at' | 'updated_at'>) => {
+    if (!user) throw new Error('로그인이 필요합니다');
+
+    try {
+      setLoading(true);
+      const newGoal = await GoalsService.createGoal({
+        ...goalData,
+        user_id: user.id,
+        reward_points: GoalsService.calculateRewardPoints(goalData.difficulty),
+      });
+      
+      setGoals(prev => [newGoal, ...prev]);
+      return newGoal;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '목표 생성 실패';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 목표 수정
+  const updateGoal = async (goalId: string, updates: Partial<Goal>) => {
+    try {
+      setLoading(true);
+      const updatedGoal = await GoalsService.updateGoal(goalId, updates);
+      
+      setGoals(prev => 
+        prev.map(goal => goal.id === goalId ? updatedGoal : goal)
+      );
+      return updatedGoal;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '목표 수정 실패';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 목표 삭제
+  const deleteGoal = async (goalId: string) => {
+    try {
+      setLoading(true);
+      await GoalsService.deleteGoal(goalId);
+      
+      setGoals(prev => prev.filter(goal => goal.id !== goalId));
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '목표 삭제 실패';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 진행률 업데이트
+  const updateProgress = async (goalId: string, progressAmount: number, note?: string) => {
+    try {
+      setLoading(true);
+      const result = await GoalsService.updateProgress(goalId, progressAmount, note);
+      
+      // 목표 목록 다시 로드 (진행률 반영)
+      await loadGoals();
+      
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '진행률 업데이트 실패';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 목표 완료
+  const completeGoal = async (goalId: string) => {
+    try {
+      setLoading(true);
+      const result = await GoalsService.completeGoal(goalId);
+      
+      // 목표 목록 다시 로드 (완료 상태 반영)
+      await loadGoals();
+      
+      return result;
+    } catch (err) {
+      const errorMessage = err instanceof Error ? err.message : '목표 완료 실패';
+      setError(errorMessage);
+      throw new Error(errorMessage);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // 초기 데이터 로드
+  useEffect(() => {
+    loadCategories();
+    if (user) {
+      loadGoals();
+    }
+  }, [user]);
+
+  return {
+    goals,
+    categories,
+    loading,
+    error,
+    loadGoals,
+    createGoal,
+    updateGoal,
+    deleteGoal,
+    updateProgress,
+    completeGoal,
+    clearError: () => setError(null),
+  };
+};
