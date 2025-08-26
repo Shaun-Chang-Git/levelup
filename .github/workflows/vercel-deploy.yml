@@ -1,0 +1,17 @@
+name: Vercel Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        
+      - name: Trigger Vercel Deploy
+        run: |
+          echo "코드가 푸시되었습니다. Vercel이 자동으로 빌드 및 배포를 진행합니다."
+          echo "Vercel 대시보드에서 배포 상태를 확인하세요: https://vercel.com/dashboard"
