@@ -71,7 +71,7 @@ export const AccessibleButton = forwardRef<HTMLButtonElement, AccessibleButtonPr
     if (onClick) {
       setIsProcessing(true);
       try {
-        await onClick(event);
+        await onClick(event as any);
         if (successMessage) {
           announceToScreenReader(successMessage, 'polite');
         }
@@ -190,7 +190,7 @@ export const AccessibleIconButton = forwardRef<HTMLButtonElement, AccessibleIcon
     if (onClick) {
       setIsProcessing(true);
       try {
-        await onClick(event);
+        await onClick(event as any);
         if (successMessage) {
           announceToScreenReader(successMessage, 'polite');
         }
@@ -291,7 +291,7 @@ export const AccessibleFab = forwardRef<HTMLButtonElement, AccessibleFabProps>((
     if (onClick) {
       setIsProcessing(true);
       try {
-        await onClick(event);
+        await onClick(event as any);
         if (successMessage) {
           announceToScreenReader(successMessage, 'polite');
         }
