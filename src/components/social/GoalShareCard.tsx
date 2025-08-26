@@ -32,8 +32,10 @@ import {
   Comment,
   Favorite
 } from '@mui/icons-material';
-import { formatDistanceToNow } from 'date-fns';
-// import { ko } from 'date-fns/locale/ko';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 import type { GoalShare, GoalShareOptions } from '../../types';
 
 interface GoalShareCardProps {
@@ -155,10 +157,7 @@ const GoalShareCard: React.FC<GoalShareCardProps> = ({
   };
 
   const formatTime = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), {
-      addSuffix: true,
-      // locale: ko
-    });
+    return dayjs(dateString).fromNow();
   };
 
   return (

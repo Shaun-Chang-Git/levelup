@@ -27,8 +27,10 @@ import {
   ThumbUp,
   LocalFireDepartment
 } from '@mui/icons-material';
-import { formatDistanceToNow } from 'date-fns';
-// import { ko } from 'date-fns/locale/ko';
+import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
+
+dayjs.extend(relativeTime);
 import type { ActivityFeed, ActivityComment } from '../../types';
 
 interface ActivityFeedCardProps {
@@ -126,10 +128,7 @@ const ActivityFeedCard: React.FC<ActivityFeedCardProps> = ({
   };
 
   const formatTime = (dateString: string) => {
-    return formatDistanceToNow(new Date(dateString), {
-      addSuffix: true,
-      // locale: ko
-    });
+    return dayjs(dateString).fromNow();
   };
 
   return (
