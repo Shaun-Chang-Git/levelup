@@ -18,8 +18,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
-// import { ko } from 'date-fns/locale/ko';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Category, Goal, GoalTemplate } from '../../types';
 import { GoalsService } from '../../services/goalsService';
 import { TemplatesService } from '../../services/templatesService';
@@ -156,7 +155,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
   const selectedDifficulty = getDifficultyInfo(formData.difficulty);
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

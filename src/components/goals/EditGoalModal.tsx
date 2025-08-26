@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
-import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 // import { ko } from 'date-fns/locale/ko';
 import { Category, Goal } from '../../types';
 import { GoalsService } from '../../services/goalsService';
@@ -138,7 +138,7 @@ const EditGoalModal: React.FC<EditGoalModalProps> = ({
   }
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} >
+    <LocalizationProvider dateAdapter={AdapterDayjs}>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
         <DialogTitle>목표 수정</DialogTitle>
         
