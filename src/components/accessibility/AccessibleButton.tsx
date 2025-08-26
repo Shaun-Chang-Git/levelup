@@ -39,11 +39,11 @@ interface AccessibleButtonBaseProps {
   onClick?: (event: React.MouseEvent<HTMLElement>) => void | Promise<void>;
 }
 
-interface AccessibleButtonProps extends Omit<ButtonProps, 'onClick'>, AccessibleButtonBaseProps {}
+interface AccessibleButtonProps extends Omit<ButtonProps, 'onClick' | 'onKeyDown'>, AccessibleButtonBaseProps {}
 
-interface AccessibleIconButtonProps extends Omit<IconButtonProps, 'onClick'>, AccessibleButtonBaseProps {}
+interface AccessibleIconButtonProps extends Omit<IconButtonProps, 'onClick' | 'onKeyDown'>, AccessibleButtonBaseProps {}
 
-interface AccessibleFabProps extends Omit<FabProps, 'onClick'>, AccessibleButtonBaseProps {}
+interface AccessibleFabProps extends Omit<FabProps, 'onClick' | 'onKeyDown'>, AccessibleButtonBaseProps {}
 
 /**
  * 접근성이 향상된 일반 버튼
