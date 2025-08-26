@@ -119,11 +119,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
   const hasSuccess = touched && !hasError && (!!successMessage || (isValid && value));
 
   return (
-    <FormControl 
-      fullWidth 
-      error={hasError}
-      sx={{ mb: 2 }}
-    >
+    <Box sx={{ mb: 2 }}>
       <TextField
         {...props}
         id={fieldId}
@@ -132,6 +128,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
         onChange={handleChange}
         onBlur={handleBlur}
         error={hasError}
+        fullWidth
         autoComplete={autoComplete}
         inputProps={{
           ...props.inputProps,
@@ -192,7 +189,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
           {successMessage}
         </FormHelperText>
       )}
-    </FormControl>
+    </Box>
   );
 };
 
