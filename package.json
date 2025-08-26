@@ -2,6 +2,7 @@
   "name": "levelup",
   "version": "0.1.0",
   "private": true,
+  "homepage": ".",
   "dependencies": {
     "@supabase/supabase-js": "^2.45.4",
     "@mui/material": "^5.16.7",
