@@ -37,7 +37,7 @@ const AppLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { isMobile } = useResponsive();
   const location = useLocation();
   
-  const showBottomNav = user && isMobile;
+  const showBottomNav = Boolean(user && isMobile);
   const isPublicPage = ['/', '/login', '/signup'].includes(location.pathname);
   
   return (
