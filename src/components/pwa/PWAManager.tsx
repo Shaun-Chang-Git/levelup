@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import {
   Close as CloseIcon,
-  System as UpdateIcon,
+  Refresh as UpdateIcon,
 } from '@mui/icons-material';
 import { usePWA } from '../../hooks/usePWA';
 import InstallPrompt from './InstallPrompt';
