@@ -43,13 +43,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     // 초기 세션 확인
     const getSession = async (): Promise<void> => {
-      const {
-        data: { session },
-      } = await supabase.auth.getSession();
-      setSession(session);
-      setUser(session?.user || null);
-      if (session?.user) {
-        await fetchUserProfile(session.user);
+      try {
+        console.log('Getting initial session...');
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error('Error getting session:', error);
+        }
+        
+        console.log('Initial session:', session?.user?.email || 'No session');
+        setSession(session);
+        setUser(session?.user || null);
+        
+        if (session?.user) {
+          await fetchUserProfile(session.user);
+        }
+      } catch (error) {
+        console.error('Failed to get initial session:', error);
       }
       setLoading(false);
     };
@@ -60,12 +73,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log('Auth state change:', event, session?.user?.email);
+      
       setSession(session);
       setUser(session?.user || null);
+      
       if (session?.user) {
         await fetchUserProfile(session.user);
       } else {
         setProfile(null);
+        // 세션이 없어진 이유를 더 자세히 로깅
+        if (event === 'SIGNED_OUT') {
+          console.log('User signed out');
+        } else if (event === 'TOKEN_REFRESHED') {
+          console.log('Token refresh failed, user logged out');
+        } else {
+          console.log('Session lost, reason:', event);
+        }
       }
       setLoading(false);
     });

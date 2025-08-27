@@ -14,6 +14,14 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
+    storage: window.localStorage,
+    storageKey: 'levelup-auth-token',
+    flowType: 'pkce',
+  },
+  global: {
+    headers: {
+      'x-application-name': 'levelup',
+    },
   },
 });
 
