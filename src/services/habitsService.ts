@@ -61,27 +61,64 @@ export class HabitsService {
   static async getTodaysHabits(userId: string): Promise<Goal[]> {
     const today = new Date().toISOString().split('T')[0];
     const dayOfWeek = new Date().getDay() === 0 ? 7 : new Date().getDay(); // 1-7 (월-일)
+    const dayOfMonth = new Date().getDate();
 
-    const { data, error } = await supabase
-      .from('goals')
-      .select(`
-        *,
-        categories(*)
-      `)
-      .eq('user_id', userId)
-      .eq('is_recurring', true)
-      .eq('status', 'active')
-      .or(`
-        recurrence_type.eq.daily,
-        and(recurrence_type.eq.weekly,recurrence_days.cs.{${dayOfWeek}}),
-        and(recurrence_type.eq.monthly,recurrence_days.cs.{${new Date().getDate()}})
-      `);
+    // 각각의 반복 유형별로 쿼리를 나누어 실행 후 결합
+    const queries = [
+      // 매일 반복
+      supabase
+        .from('goals')
+        .select(`*, categories(*)`)
+        .eq('user_id', userId)
+        .eq('is_recurring', true)
+        .eq('status', 'active')
+        .eq('recurrence_type', 'daily'),
+      
+      // 주간 반복 (오늘이 포함된 요일)
+      supabase
+        .from('goals')
+        .select(`*, categories(*)`)
+        .eq('user_id', userId)
+        .eq('is_recurring', true)
+        .eq('status', 'active')
+        .eq('recurrence_type', 'weekly')
+        .contains('recurrence_days', [dayOfWeek]),
+      
+      // 월간 반복 (오늘 날짜가 포함)
+      supabase
+        .from('goals')
+        .select(`*, categories(*)`)
+        .eq('user_id', userId)
+        .eq('is_recurring', true)
+        .eq('status', 'active')
+        .eq('recurrence_type', 'monthly')
+        .contains('recurrence_days', [dayOfMonth])
+    ];
 
-    if (error) {
-      throw new Error(`오늘의 습관 조회 실패: ${error.message}`);
+    try {
+      const results = await Promise.all(queries);
+      const allHabits: Goal[] = [];
+      
+      // 각 쿼리 결과를 합치고 중복 제거
+      results.forEach(({ data, error }) => {
+        if (error) {
+          console.error('습관 조회 에러:', error);
+          return;
+        }
+        if (data) {
+          allHabits.push(...data);
+        }
+      });
+
+      // ID로 중복 제거
+      const uniqueHabits = allHabits.filter((habit, index, self) => 
+        index === self.findIndex(h => h.id === habit.id)
+      );
+
+      return uniqueHabits;
+    } catch (error) {
+      throw new Error(`오늘의 습관 조회 실패: ${error instanceof Error ? error.message : '알 수 없는 오류'}`);
     }
-
-    return data || [];
   }
 
   // 습관 완료 처리
