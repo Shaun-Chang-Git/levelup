@@ -22,6 +22,7 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Category, Goal, GoalTemplate } from '../../types';
 import { GoalsService } from '../../services/goalsService';
 import { TemplatesService } from '../../services/templatesService';
+import { useAuth } from '../../contexts/AuthContext';
 import TemplateSelectionModal from './TemplateSelectionModal';
 
 interface CreateGoalModalProps {
@@ -37,6 +38,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
   onSubmit,
   categories,
 }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -68,6 +70,11 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
       setLoading(true);
       setError(null);
 
+      if (!user) {
+        setError('사용자 인증이 필요합니다.');
+        return;
+      }
+
       const goalData = {
         title: formData.title.trim(),
         description: formData.description.trim() || null,
@@ -80,6 +87,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
         target_date: formData.target_date ? formData.target_date.toISOString().split('T')[0] : null,
         reward_points: GoalsService.calculateRewardPoints(formData.difficulty),
         streak_count: 0,
+        user_id: user.id,
       };
 
       await onSubmit(goalData);
