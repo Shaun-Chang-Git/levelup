@@ -119,7 +119,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
   const hasSuccess = touched && !hasError && (!!successMessage || (isValid && value));
 
   return (
-    <Box sx={{ mb: 2 }}>
+    <>
       <TextField
         {...props}
         id={fieldId}
@@ -142,6 +142,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
           'aria-invalid': hasError,
         }}
         sx={{
+          mb: 2,
           ...props.sx,
           '& .MuiOutlinedInput-root': {
             '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
@@ -189,7 +190,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
           {successMessage}
         </FormHelperText>
       )}
-    </Box>
+    </>
   );
 };
 
