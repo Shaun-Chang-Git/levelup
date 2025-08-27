@@ -14,11 +14,11 @@ import {
   Typography,
   Chip,
   Alert,
-  Divider,
 } from '@mui/material';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs, { Dayjs } from 'dayjs';
 import { Category, Goal, GoalTemplate } from '../../types';
 import { GoalsService } from '../../services/goalsService';
 import { TemplatesService } from '../../services/templatesService';
@@ -46,7 +46,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
     difficulty: 'medium' as 'easy' | 'medium' | 'hard' | 'expert',
     target_value: '',
     unit: '',
-    target_date: null as Date | null,
+    target_date: null as Dayjs | null,
     is_recurring: false,
   });
   const [loading, setLoading] = useState(false);
@@ -84,7 +84,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
         current_value: 0,
         unit: formData.unit.trim() || null,
         status: 'active' as const,
-        target_date: formData.target_date ? formData.target_date.toISOString().split('T')[0] : null,
+        target_date: formData.target_date ? formData.target_date.format('YYYY-MM-DD') : null,
         reward_points: GoalsService.calculateRewardPoints(formData.difficulty),
         streak_count: 0,
         user_id: user.id,
@@ -101,6 +101,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
         target_value: '',
         unit: '',
         target_date: null,
+        is_recurring: false,
       });
       
       onClose();
@@ -133,7 +134,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
         target_value: template.target_value?.toString() || '',
         unit: template.unit || '',
         target_date: template.duration_days 
-          ? new Date(Date.now() + template.duration_days * 24 * 60 * 60 * 1000) 
+          ? dayjs().add(template.duration_days, 'day') 
           : null,
       });
 
@@ -312,7 +313,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
                   margin: 'dense',
                 }
               }}
-              minDate={new Date()}
+              minDate={dayjs()}
             />
           </DialogContent>
 
