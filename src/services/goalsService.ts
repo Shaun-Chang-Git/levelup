@@ -114,15 +114,18 @@ export class GoalsService {
 
   // 목표 완료 처리 (Supabase 함수 호출)
   static async completeGoal(goalId: string): Promise<any> {
+    console.log('Completing goal:', goalId);
     const { data, error } = await supabase
       .rpc('complete_goal', {
-        goal_id: goalId,
+        p_goal_id: goalId,
       });
 
     if (error) {
+      console.error('Complete goal error:', error);
       throw new Error(`목표 완료 처리 실패: ${error.message}`);
     }
 
+    console.log('Goal completed successfully:', data);
     return data;
   }
 
