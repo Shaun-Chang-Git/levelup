@@ -758,14 +758,19 @@ export const socialService = {
   },
 
   // 읽지 않은 알림 개수 조회
-  async getUnreadNotificationCount() {
-    const { data: user } = await supabase.auth.getUser();
-    if (!user.user) throw new Error('Not authenticated');
+  async getUnreadNotificationCount(userId?: string) {
+    let currentUserId = userId;
+    
+    if (!currentUserId) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session?.user) throw new Error('Not authenticated');
+      currentUserId = session.user.id;
+    }
 
     const { count, error } = await supabase
       .from('notifications')
       .select('id', { count: 'exact' })
-      .eq('user_id', user.user.id)
+      .eq('user_id', currentUserId)
       .eq('is_read', false);
 
     if (error) throw error;

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { socialService } from '../services/socialService';
+import { useAuth } from '../contexts/AuthContext';
 import type { 
   UserFollow, 
   GoalShare, 
@@ -425,6 +426,7 @@ export const useActivityFeed = () => {
 
 // 알림 시스템 훅
 export const useNotifications = () => {
+  const { user } = useAuth();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [settings, setSettings] = useState<NotificationSettings | null>(null);
@@ -445,13 +447,18 @@ export const useNotifications = () => {
   }, []);
 
   const fetchUnreadCount = useCallback(async () => {
+    if (!user?.id) {
+      console.warn('User not authenticated, skipping unread count fetch');
+      return;
+    }
+    
     try {
-      const count = await socialService.getUnreadNotificationCount();
+      const count = await socialService.getUnreadNotificationCount(user.id);
       setUnreadCount(count);
     } catch (err) {
       console.error('읽지 않은 알림 개수 조회 실패:', err);
     }
-  }, []);
+  }, [user?.id]);
 
   const fetchSettings = useCallback(async () => {
     try {
