@@ -706,12 +706,7 @@ export const socialService = {
         title,
         message,
         is_read,
-        created_at,
-        related_user:profiles!notifications_related_user_id_fkey (
-          id,
-          display_name,
-          avatar_url
-        )
+        created_at
       `)
       .eq('user_id', user.user.id)
       .order('created_at', { ascending: false })
