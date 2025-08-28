@@ -98,17 +98,20 @@ export class GoalsService {
 
   // 목표 진행률 업데이트 (Supabase 함수 호출)
   static async updateProgress(goalId: string, progressAmount: number, note?: string): Promise<any> {
+    console.log('Updating progress:', goalId, progressAmount);
     const { data, error } = await supabase
       .rpc('update_goal_progress', {
-        goal_id: goalId,
-        progress_amount: progressAmount,
-        note: note || null,
+        p_goal_id: goalId,
+        p_progress_amount: progressAmount,
+        p_note: note || null,
       });
 
     if (error) {
+      console.error('Update progress error:', error);
       throw new Error(`진행률 업데이트 실패: ${error.message}`);
     }
 
+    console.log('Progress updated successfully:', data);
     return data;
   }
 
