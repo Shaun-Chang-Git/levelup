@@ -101,16 +101,34 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const fetchUserProfile = async (authUser: SupabaseUser): Promise<void> => {
     try {
+      console.log('Fetching user profile for:', authUser.email);
       const { data, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', authUser.id)
         .single();
 
-      if (error && error.code === 'PGRST116') {
-        // 사용자 프로필이 없는 경우 (수동으로 생성하지 않음 - 트리거에서 자동 생성)
-        console.log('프로필이 아직 생성되지 않았습니다. 트리거가 처리 중입니다.');
+      if (error) {
+        console.error('Profile fetch error:', error);
+        if (error.code === 'PGRST116') {
+          // 사용자 프로필이 없는 경우 (수동으로 생성하지 않음 - 트리거에서 자동 생성)
+          console.log('프로필이 아직 생성되지 않았습니다. 트리거가 처리 중입니다.');
+        } else if (error.code === 'PGRST301' || error.message.includes('JWT')) {
+          // 401 Unauthorized 또는 JWT 관련 에러
+          console.error('인증 토큰 문제 감지:', error);
+          // 세션 갱신 시도
+          const { error: refreshError } = await supabase.auth.refreshSession();
+          if (refreshError) {
+            console.error('세션 갱신 실패:', refreshError);
+          } else {
+            console.log('세션 갱신 성공, 프로필 재시도');
+            // 재시도
+            setTimeout(() => fetchUserProfile(authUser), 1000);
+            return;
+          }
+        }
       } else if (data) {
+        console.log('Profile loaded successfully:', data.display_name || data.email);
         setProfile({
           id: data.id,
           email: data.email,
@@ -124,7 +142,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         });
       }
     } catch (error) {
-      console.error('사용자 프로필 조회 오류:', error);
+      console.error('사용자 프로필 조회 예외:', error);
     }
   };
 
