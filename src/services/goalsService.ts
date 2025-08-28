@@ -118,10 +118,23 @@ export class GoalsService {
   // 목표 완료 처리 (Supabase 함수 호출)
   static async completeGoal(goalId: string): Promise<any> {
     console.log('Completing goal:', goalId);
-    const { data, error } = await supabase
-      .rpc('complete_goal', {
+    
+    // 먼저 새로운 함수명으로 시도
+    let { data, error } = await supabase
+      .rpc('complete_user_goal', {
         p_goal_id: goalId,
       });
+
+    // 새 함수가 없으면 기존 함수로 시도
+    if (error && error.message.includes('function complete_user_goal')) {
+      console.log('Fallback to complete_goal function');
+      const fallbackResult = await supabase
+        .rpc('complete_goal', {
+          p_goal_id: goalId,
+        });
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
 
     if (error) {
       console.error('Complete goal error:', error);
