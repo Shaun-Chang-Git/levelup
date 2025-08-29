@@ -99,12 +99,26 @@ export class GoalsService {
   // 목표 진행률 업데이트 (Supabase 함수 호출)
   static async updateProgress(goalId: string, progressAmount: number, note?: string): Promise<any> {
     console.log('Updating progress:', goalId, progressAmount);
-    const { data, error } = await supabase
-      .rpc('update_goal_progress', {
+    
+    // 새로운 함수 시도
+    let { data, error } = await supabase
+      .rpc('update_goal_progress_v2', {
         p_goal_id: goalId,
         p_progress_amount: progressAmount,
         p_note: note || null,
       });
+
+    // 폴백
+    if (error && error.message.includes('function update_goal_progress_v2')) {
+      const fallbackResult = await supabase
+        .rpc('update_goal_progress', {
+          p_goal_id: goalId,
+          p_progress_amount: progressAmount,
+          p_note: note || null,
+        });
+      data = fallbackResult.data;
+      error = fallbackResult.error;
+    }
 
     if (error) {
       console.error('Update progress error:', error);
@@ -117,30 +131,50 @@ export class GoalsService {
 
   // 목표 완료 처리 (Supabase 함수 호출)
   static async completeGoal(goalId: string): Promise<any> {
-    console.log('Completing goal:', goalId);
+    console.log('=== GOAL COMPLETION DEBUG ===');
+    console.log('Goal ID:', goalId);
+    console.log('Goal ID type:', typeof goalId);
     
-    // 먼저 새로운 함수명으로 시도
+    // 먼저 새로운 V2 함수명으로 시도
+    console.log('Trying complete_goal_v2 function...');
     let { data, error } = await supabase
-      .rpc('complete_user_goal', {
+      .rpc('complete_goal_v2', {
         p_goal_id: goalId,
       });
 
-    // 새 함수가 없으면 기존 함수로 시도
-    if (error && error.message.includes('function complete_user_goal')) {
+    console.log('complete_goal_v2 result:');
+    console.log('- Data:', data);
+    console.log('- Error:', error);
+    console.log('- Error details:', JSON.stringify(error, null, 2));
+
+    // V2 함수가 없으면 기존 함수로 시도
+    if (error && (error.message.includes('function complete_goal_v2') || error.message.includes('does not exist'))) {
       console.log('Fallback to complete_goal function');
       const fallbackResult = await supabase
         .rpc('complete_goal', {
           p_goal_id: goalId,
         });
+      
+      console.log('complete_goal fallback result:');
+      console.log('- Data:', fallbackResult.data);
+      console.log('- Error:', fallbackResult.error);
+      console.log('- Error details:', JSON.stringify(fallbackResult.error, null, 2));
+      
       data = fallbackResult.data;
       error = fallbackResult.error;
     }
 
     if (error) {
-      console.error('Complete goal error:', error);
+      console.error('=== FINAL ERROR ===');
+      console.error('Error object:', error);
+      console.error('Error message:', error.message);
+      console.error('Error code:', error.code);
+      console.error('Error details:', error.details);
+      console.error('Error hint:', error.hint);
       throw new Error(`목표 완료 처리 실패: ${error.message}`);
     }
 
+    console.log('=== SUCCESS ===');
     console.log('Goal completed successfully:', data);
     return data;
   }
