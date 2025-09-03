@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { StatisticsService } from '../services/statisticsService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,8 +11,8 @@ export const useStatistics = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 대시보드 통계 로드 (useCallback으로 메모이제이션)
-  const loadDashboardStats = useCallback(async () => {
+  // 대시보드 통계 로드
+  const loadDashboardStats = async () => {
     if (!user) {
       setLoading(false);
       return;
@@ -37,10 +37,10 @@ export const useStatistics = () => {
     } finally {
       setLoading(false);
     }
-  }, [user]);
+  };
 
   // 월간 통계 로드
-  const loadMonthlyStats = useCallback(async () => {
+  const loadMonthlyStats = async () => {
     if (!user) return;
 
     try {
@@ -50,10 +50,10 @@ export const useStatistics = () => {
       setError(err instanceof Error ? err.message : '월간 통계 로드 실패');
       setMonthlyStats({});
     }
-  }, [user]);
+  };
 
   // 주간 진행률 데이터 로드
-  const loadWeeklyProgressData = useCallback(async () => {
+  const loadWeeklyProgressData = async () => {
     if (!user) return;
 
     try {
@@ -63,10 +63,10 @@ export const useStatistics = () => {
       setError(err instanceof Error ? err.message : '주간 데이터 로드 실패');
       setWeeklyProgressData([]);
     }
-  }, [user]);
+  };
 
   // 카테고리 통계 로드
-  const loadCategoryData = useCallback(async () => {
+  const loadCategoryData = async () => {
     if (!user) return;
 
     try {
@@ -76,7 +76,7 @@ export const useStatistics = () => {
       setError(err instanceof Error ? err.message : '카테고리 데이터 로드 실패');
       setCategoryData([]);
     }
-  }, [user]);
+  };
 
   // 모든 통계 데이터 새로고침
   const refreshAllStats = async () => {
@@ -110,7 +110,7 @@ export const useStatistics = () => {
       loadWeeklyProgressData();
       loadCategoryData();
     }
-  }, [user, loadDashboardStats, loadMonthlyStats, loadWeeklyProgressData, loadCategoryData]);
+  }, [user?.id]); // user.id만 의존성으로 사용
 
   return {
     dashboardStats,
