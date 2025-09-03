@@ -18,30 +18,50 @@ export class GoalsService {
 
   // 사용자의 모든 목표 조회
   static async getUserGoals(userId: string, categoryId?: string, status?: string): Promise<Goal[]> {
-    let query = supabase
-      .from('goals')
-      .select(`
-        *,
-        categories(*)
-      `)
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false });
+    console.log('=== getUserGoals SERVICE DEBUG ===');
+    console.log('User ID:', userId);
+    console.log('Category ID:', categoryId);
+    console.log('Status:', status);
+    
+    try {
+      let query = supabase
+        .from('goals')
+        .select(`
+          *,
+          categories(*)
+        `)
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-    if (categoryId) {
-      query = query.eq('category_id', categoryId);
+      if (categoryId) {
+        query = query.eq('category_id', categoryId);
+      }
+
+      if (status) {
+        query = query.eq('status', status);
+      }
+
+      console.log('Executing Supabase query...');
+      const { data, error } = await query;
+      
+      console.log('Supabase query result:');
+      console.log('- Data:', data ? `${data.length} goals` : 'null');
+      console.log('- Error:', error);
+
+      if (error) {
+        console.error('=== SUPABASE QUERY ERROR ===');
+        console.error('Error details:', error);
+        throw new Error(`목표 조회 실패: ${error.message}`);
+      }
+
+      console.log('getUserGoals completed successfully');
+      return data || [];
+      
+    } catch (err) {
+      console.error('=== getUserGoals CATCH ERROR ===');
+      console.error('Caught error:', err);
+      throw err;
     }
-
-    if (status) {
-      query = query.eq('status', status);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-      throw new Error(`목표 조회 실패: ${error.message}`);
-    }
-
-    return data || [];
   }
 
   // 목표 생성

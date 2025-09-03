@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Goal, Category } from '../types';
 import { GoalsService } from '../services/goalsService';
 import { useAuth } from '../contexts/AuthContext';
@@ -20,21 +20,36 @@ export const useGoals = () => {
     }
   };
 
-  // 목표 로드
-  const loadGoals = async (categoryId?: string, status?: string) => {
-    if (!user) return;
+  // 목표 로드 (useCallback으로 메모이제이션)
+  const loadGoals = useCallback(async (categoryId?: string, status?: string) => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
+      console.log('=== LOADING GOALS ===');
+      console.log('User ID:', user.id);
+      console.log('Category ID:', categoryId);
+      console.log('Status:', status);
+      
       const goalsData = await GoalsService.getUserGoals(user.id, categoryId, status);
+      console.log('Goals loaded successfully:', goalsData.length, 'goals');
       setGoals(goalsData);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '목표 로드 실패');
+      console.error('=== GOALS LOADING ERROR ===');
+      console.error('Error:', err);
+      const errorMessage = err instanceof Error ? err.message : '목표 로드 실패';
+      console.error('Error message:', errorMessage);
+      setError(errorMessage);
+      // 에러 시에도 빈 배열로 설정하여 UI가 멈추지 않도록 함
+      setGoals([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   // 목표 생성
   const createGoal = async (goalData: Omit<Goal, 'id' | 'created_at' | 'updated_at'>) => {
@@ -134,11 +149,14 @@ export const useGoals = () => {
 
   // 초기 데이터 로드
   useEffect(() => {
+    console.log('=== useGoals useEffect triggered ===');
+    console.log('User:', user ? user.id : 'No user');
+    
     loadCategories();
     if (user) {
       loadGoals();
     }
-  }, [user]);
+  }, [user, loadGoals]);
 
   return {
     goals,
