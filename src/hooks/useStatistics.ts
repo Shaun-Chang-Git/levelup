@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { StatisticsService } from '../services/statisticsService';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -11,25 +11,36 @@ export const useStatistics = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 대시보드 통계 로드
-  const loadDashboardStats = async () => {
-    if (!user) return;
+  // 대시보드 통계 로드 (useCallback으로 메모이제이션)
+  const loadDashboardStats = useCallback(async () => {
+    if (!user) {
+      setLoading(false);
+      return;
+    }
 
     try {
       setLoading(true);
       setError(null);
+      console.log('=== LOADING DASHBOARD STATS ===');
+      console.log('User ID:', user.id);
       
       const stats = await StatisticsService.getDashboardStats(user.id);
+      console.log('Dashboard stats loaded successfully');
       setDashboardStats(stats);
     } catch (err) {
-      setError(err instanceof Error ? err.message : '대시보드 통계 로드 실패');
+      console.error('=== DASHBOARD STATS ERROR ===');
+      console.error('Error:', err);
+      const errorMessage = err instanceof Error ? err.message : '대시보드 통계 로드 실패';
+      setError(errorMessage);
+      // 에러 시에도 빈 객체로 설정하여 로딩 상태 해제
+      setDashboardStats({});
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
 
   // 월간 통계 로드
-  const loadMonthlyStats = async () => {
+  const loadMonthlyStats = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -37,11 +48,12 @@ export const useStatistics = () => {
       setMonthlyStats(stats);
     } catch (err) {
       setError(err instanceof Error ? err.message : '월간 통계 로드 실패');
+      setMonthlyStats({});
     }
-  };
+  }, [user]);
 
   // 주간 진행률 데이터 로드
-  const loadWeeklyProgressData = async () => {
+  const loadWeeklyProgressData = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -49,11 +61,12 @@ export const useStatistics = () => {
       setWeeklyProgressData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '주간 데이터 로드 실패');
+      setWeeklyProgressData([]);
     }
-  };
+  }, [user]);
 
   // 카테고리 통계 로드
-  const loadCategoryData = async () => {
+  const loadCategoryData = useCallback(async () => {
     if (!user) return;
 
     try {
@@ -61,8 +74,9 @@ export const useStatistics = () => {
       setCategoryData(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : '카테고리 데이터 로드 실패');
+      setCategoryData([]);
     }
-  };
+  }, [user]);
 
   // 모든 통계 데이터 새로고침
   const refreshAllStats = async () => {
@@ -87,13 +101,16 @@ export const useStatistics = () => {
 
   // 초기 데이터 로드
   useEffect(() => {
+    console.log('=== useStatistics useEffect triggered ===');
+    console.log('User:', user ? user.id : 'No user');
+    
     if (user) {
       loadDashboardStats();
       loadMonthlyStats();
       loadWeeklyProgressData();
       loadCategoryData();
     }
-  }, [user]);
+  }, [user, loadDashboardStats, loadMonthlyStats, loadWeeklyProgressData, loadCategoryData]);
 
   return {
     dashboardStats,
