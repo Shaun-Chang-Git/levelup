@@ -89,12 +89,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } else {
         setProfile(null);
         // 세션이 없어진 이유를 더 자세히 로깅
-        if (event === 'SIGNED_OUT') {
-          console.log('User signed out');
-        } else if (event === 'TOKEN_REFRESHED') {
-          console.log('Token refresh failed, user logged out');
-        } else {
-          console.log('Session lost, reason:', event);
+        if (process.env.NODE_ENV === 'development') {
+          if (event === 'SIGNED_OUT') {
+            console.log('User signed out');
+          } else if (event === 'TOKEN_REFRESHED') {
+            console.log('Token refresh failed, user logged out');
+          } else {
+            console.log('Session lost, reason:', event);
+          }
         }
       }
       setLoading(false);
