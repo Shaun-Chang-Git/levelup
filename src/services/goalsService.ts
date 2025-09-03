@@ -137,14 +137,42 @@ export class GoalsService {
     
     // complete_goal_fixed 함수 호출 (user_id 모호성 문제 해결된 새 함수)
     console.log('Calling complete_goal_fixed function...');
-    const { data, error } = await supabase
-      .rpc('complete_goal_fixed', {
+    
+    let data, error;
+    try {
+      const result = await supabase.rpc('complete_goal_fixed', {
         p_goal_id: goalId,
       });
-
-    console.log('complete_goal_fixed result:');
-    console.log('- Data:', data);
-    console.log('- Error:', error);
+      data = result.data;
+      error = result.error;
+      
+      console.log('=== RPC CALL COMPLETED ===');
+      console.log('- Data:', data);
+      console.log('- Error:', error);
+      console.log('- Data type:', typeof data);
+      
+    } catch (networkError) {
+      console.error('=== NETWORK ERROR - TRYING FALLBACK ===');
+      console.error('Network error:', networkError);
+      console.log('Trying fallback to complete_goal function...');
+      
+      try {
+        const fallbackResult = await supabase.rpc('complete_goal', {
+          p_goal_id: goalId,
+        });
+        data = fallbackResult.data;
+        error = fallbackResult.error;
+        
+        console.log('=== FALLBACK RPC CALL COMPLETED ===');
+        console.log('- Data:', data);
+        console.log('- Error:', error);
+        
+      } catch (fallbackError) {
+        console.error('=== FALLBACK ALSO FAILED ===');
+        console.error('Fallback error:', fallbackError);
+        throw new Error(`모든 함수 호출 실패: ${fallbackError.message}`);
+      }
+    }
 
     if (error) {
       console.error('=== GOAL COMPLETION ERROR ===');
