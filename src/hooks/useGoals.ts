@@ -132,10 +132,18 @@ export const useGoals = () => {
   const completeGoal = async (goalId: string) => {
     try {
       setLoading(true);
+      console.log('=== useGoals completeGoal START ===');
+      console.log('Goal ID:', goalId);
+      
       const result = await GoalsService.completeGoal(goalId);
+      console.log('=== completeGoal SERVICE RESULT ===');
+      console.log('Result:', result);
+      console.log('Result type:', typeof result);
       
       // 목표 목록 다시 로드 (완료 상태 반영)
+      console.log('Reloading goals after completion...');
       await loadGoals();
+      console.log('Goals reloaded successfully');
       
       return result;
     } catch (err) {

@@ -221,10 +221,17 @@ export class GoalsService {
       throw new Error(`목표 완료 처리 실패: ${error.message}`);
     }
 
-    if (process.env.NODE_ENV === 'development') {
-      console.log('=== GOAL COMPLETION SUCCESS ===');
-      console.log('Goal completed successfully:', data);
+    console.log('=== GOAL COMPLETION SUCCESS ===');
+    console.log('Goal completed successfully:', data);
+    console.log('Data.success:', data?.success);
+    console.log('Data.error:', data?.error);
+    
+    // SQL 함수에서 success: false를 반환한 경우 에러 처리
+    if (data && typeof data === 'object' && data.success === false) {
+      console.error('SQL function returned success: false:', data.error);
+      throw new Error(`목표 완료 실패: ${data.error}`);
     }
+    
     return data;
   }
 
