@@ -1,12 +1,9 @@
 // LevelUp PWA Service Worker
-const CACHE_NAME = 'levelup-v1.0.2';
-const STATIC_CACHE_NAME = 'levelup-static-v1.0.2';
-const DYNAMIC_CACHE_NAME = 'levelup-dynamic-v1.0.2';
+const CACHE_NAME = 'levelup-v1.0.3';
+const STATIC_CACHE_NAME = 'levelup-static-v1.0.3';
+const DYNAMIC_CACHE_NAME = 'levelup-dynamic-v1.0.3';
 
-// 개발 모드 확인 (localhost 또는 개발 환경)
-const isDevelopment = self.location.hostname === 'localhost' || 
-                     self.location.hostname === '127.0.0.1' || 
-                     self.location.hostname.includes('dev');
+// 운영 환경 최적화 - 조용한 Service Worker
 
 // 캐시할 정적 자원들 (존재하는 파일들만)
 const STATIC_ASSETS = [
@@ -34,24 +31,18 @@ const EXCLUDE_CACHE_PATTERNS = [
 
 // 서비스 워커 설치
 self.addEventListener('install', (event) => {
-  if (isDevelopment) {
-    console.log('[SW] Installing Service Worker');
-  }
+  // 로그 제거 - 운영 환경에서 조용한 설치
   
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
       .then(async (cache) => {
-        if (isDevelopment) {
-          console.log('[SW] Caching static assets');
-        }
+        // 정적 자산 캐싱 시작
         try {
           // 각 자산을 개별적으로 캐시하여 실패한 파일이 전체를 방해하지 않도록 함
           for (const asset of STATIC_ASSETS) {
             try {
               await cache.add(asset);
-              if (isDevelopment) {
-                console.log(`[SW] Successfully cached: ${asset}`);
-              }
+              // 캐싱 성공
             } catch (error) {
               console.warn(`[SW] Failed to cache ${asset}:`, error);
               // 개별 파일 캐시 실패는 무시하고 계속 진행
@@ -72,9 +63,7 @@ self.addEventListener('install', (event) => {
 
 // 서비스 워커 활성화
 self.addEventListener('activate', (event) => {
-  if (isDevelopment) {
-    console.log('[SW] Activating Service Worker');
-  }
+  // 조용한 활성화
   
   event.waitUntil(
     caches.keys().then((cacheNames) => {
