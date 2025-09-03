@@ -18,10 +18,12 @@ export class GoalsService {
 
   // 사용자의 모든 목표 조회
   static async getUserGoals(userId: string, categoryId?: string, status?: string): Promise<Goal[]> {
-    console.log('=== getUserGoals SERVICE DEBUG ===');
-    console.log('User ID:', userId);
-    console.log('Category ID:', categoryId);
-    console.log('Status:', status);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== getUserGoals SERVICE DEBUG ===');
+      console.log('User ID:', userId);
+      console.log('Category ID:', categoryId);
+      console.log('Status:', status);
+    }
     
     try {
       let query = supabase
@@ -41,12 +43,16 @@ export class GoalsService {
         query = query.eq('status', status);
       }
 
-      console.log('Executing Supabase query...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Executing Supabase query...');
+      }
       const { data, error } = await query;
       
-      console.log('Supabase query result:');
-      console.log('- Data:', data ? `${data.length} goals` : 'null');
-      console.log('- Error:', error);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Supabase query result:');
+        console.log('- Data:', data ? `${data.length} goals` : 'null');
+        console.log('- Error:', error);
+      }
 
       if (error) {
         console.error('=== SUPABASE QUERY ERROR ===');
@@ -54,7 +60,9 @@ export class GoalsService {
         throw new Error(`목표 조회 실패: ${error.message}`);
       }
 
-      console.log('getUserGoals completed successfully');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('getUserGoals completed successfully');
+      }
       return data || [];
       
     } catch (err) {
@@ -118,7 +126,9 @@ export class GoalsService {
 
   // 목표 진행률 업데이트 (Supabase 함수 호출)
   static async updateProgress(goalId: string, progressAmount: number, note?: string): Promise<any> {
-    console.log('Updating progress:', goalId, progressAmount);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Updating progress:', goalId, progressAmount);
+    }
     
     // 새로운 함수 시도
     let { data, error } = await supabase
@@ -145,18 +155,20 @@ export class GoalsService {
       throw new Error(`진행률 업데이트 실패: ${error.message}`);
     }
 
-    console.log('Progress updated successfully:', data);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('Progress updated successfully:', data);
+    }
     return data;
   }
 
   // 목표 완료 처리 (Supabase 함수 호출)
   static async completeGoal(goalId: string): Promise<any> {
-    console.log('=== GOAL COMPLETION DEBUG ===');
-    console.log('Goal ID:', goalId);
-    console.log('Goal ID type:', typeof goalId);
-    
-    // complete_goal_fixed 함수 호출 (user_id 모호성 문제 해결된 새 함수)
-    console.log('Calling complete_goal_fixed function...');
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== GOAL COMPLETION DEBUG ===');
+      console.log('Goal ID:', goalId);
+      console.log('Goal ID type:', typeof goalId);
+      console.log('Calling complete_goal_fixed function...');
+    }
     
     let data, error;
     try {
@@ -166,15 +178,19 @@ export class GoalsService {
       data = result.data;
       error = result.error;
       
-      console.log('=== RPC CALL COMPLETED ===');
-      console.log('- Data:', data);
-      console.log('- Error:', error);
-      console.log('- Data type:', typeof data);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== RPC CALL COMPLETED ===');
+        console.log('- Data:', data);
+        console.log('- Error:', error);
+        console.log('- Data type:', typeof data);
+      }
       
     } catch (networkError) {
       console.error('=== NETWORK ERROR - TRYING FALLBACK ===');
       console.error('Network error:', networkError);
-      console.log('Trying fallback to complete_goal function...');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Trying fallback to complete_goal function...');
+      }
       
       try {
         const fallbackResult = await supabase.rpc('complete_goal', {
@@ -183,9 +199,11 @@ export class GoalsService {
         data = fallbackResult.data;
         error = fallbackResult.error;
         
-        console.log('=== FALLBACK RPC CALL COMPLETED ===');
-        console.log('- Data:', data);
-        console.log('- Error:', error);
+        if (process.env.NODE_ENV === 'development') {
+          console.log('=== FALLBACK RPC CALL COMPLETED ===');
+          console.log('- Data:', data);
+          console.log('- Error:', error);
+        }
         
       } catch (fallbackError) {
         console.error('=== FALLBACK ALSO FAILED ===');
@@ -203,8 +221,10 @@ export class GoalsService {
       throw new Error(`목표 완료 처리 실패: ${error.message}`);
     }
 
-    console.log('=== GOAL COMPLETION SUCCESS ===');
-    console.log('Goal completed successfully:', data);
+    if (process.env.NODE_ENV === 'development') {
+      console.log('=== GOAL COMPLETION SUCCESS ===');
+      console.log('Goal completed successfully:', data);
+    }
     return data;
   }
 

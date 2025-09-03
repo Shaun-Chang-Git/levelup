@@ -3,14 +3,12 @@ const CACHE_NAME = 'levelup-v1.0.1';
 const STATIC_CACHE_NAME = 'levelup-static-v1.0.1';
 const DYNAMIC_CACHE_NAME = 'levelup-dynamic-v1.0.1';
 
-// 캐시할 정적 자원들
+// 캐시할 정적 자원들 (존재하는 파일들만)
 const STATIC_ASSETS = [
   '/',
-  '/static/js/bundle.js',
-  '/static/css/main.css',
-  '/favicon.ico',
-  // 오프라인 페이지
-  '/offline.html'
+  '/favicon.ico'
+  // 주의: React 빌드 파일들은 해시 포함 파일명이므로 동적으로 캐시
+  // /offline.html은 현재 없으므로 제외
 ];
 
 // 캐시할 API 엔드포인트 패턴
@@ -35,12 +33,25 @@ self.addEventListener('install', (event) => {
   
   event.waitUntil(
     caches.open(STATIC_CACHE_NAME)
-      .then((cache) => {
+      .then(async (cache) => {
         console.log('[SW] Caching static assets');
-        return cache.addAll(STATIC_ASSETS);
+        try {
+          // 각 자산을 개별적으로 캐시하여 실패한 파일이 전체를 방해하지 않도록 함
+          for (const asset of STATIC_ASSETS) {
+            try {
+              await cache.add(asset);
+              console.log(`[SW] Successfully cached: ${asset}`);
+            } catch (error) {
+              console.warn(`[SW] Failed to cache ${asset}:`, error);
+              // 개별 파일 캐시 실패는 무시하고 계속 진행
+            }
+          }
+        } catch (error) {
+          console.error('[SW] Error during caching process:', error);
+        }
       })
       .catch((error) => {
-        console.error('[SW] Failed to cache static assets:', error);
+        console.error('[SW] Failed to open cache:', error);
       })
   );
   

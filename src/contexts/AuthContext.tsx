@@ -44,7 +44,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // 초기 세션 확인
     const getSession = async (): Promise<void> => {
       try {
-        console.log('Getting initial session...');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Getting initial session...');
+        }
         const {
           data: { session },
           error,
@@ -54,7 +56,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           console.error('Error getting session:', error);
         }
         
-        console.log('Initial session:', session?.user?.email || 'No session');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Initial session:', session?.user?.email || 'No session');
+        }
         setSession(session);
         setUser(session?.user || null);
         
@@ -73,7 +77,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log('Auth state change:', event, session?.user?.email);
+      if (process.env.NODE_ENV === 'development') {
+        console.log('Auth state change:', event, session?.user?.email);
+      }
       
       setSession(session);
       setUser(session?.user || null);

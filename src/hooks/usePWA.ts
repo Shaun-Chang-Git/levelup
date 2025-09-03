@@ -56,7 +56,9 @@ export const usePWA = () => {
     };
 
     const handleAppInstalled = () => {
-      console.log('PWA was installed');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('PWA was installed');
+      }
       localStorage.setItem('pwa-installed', 'true');
       setDeferredPrompt(null);
       
@@ -147,7 +149,9 @@ export const usePWA = () => {
       const choiceResult = await deferredPrompt.userChoice;
       
       if (choiceResult.outcome === 'accepted') {
-        console.log('User accepted the install prompt');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User accepted the install prompt');
+        }
         localStorage.setItem('pwa-installed', 'true');
         
         setState(prev => ({
@@ -156,7 +160,9 @@ export const usePWA = () => {
           isInstallable: false,
         }));
       } else {
-        console.log('User dismissed the install prompt');
+        if (process.env.NODE_ENV === 'development') {
+          console.log('User dismissed the install prompt');
+        }
       }
 
       setDeferredPrompt(null);

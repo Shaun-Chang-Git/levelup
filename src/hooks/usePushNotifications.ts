@@ -239,7 +239,9 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
 // 서버로 구독 정보 전송 (실제 구현에서는 API 호출)
 async function sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
   // TODO: 실제 API 엔드포인트로 구독 정보 전송
-  console.log('Sending subscription to server:', subscription);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Sending subscription to server:', subscription);
+  }
   
   try {
     // 예시 API 호출
@@ -268,7 +270,9 @@ async function sendSubscriptionToServer(subscription: PushSubscription): Promise
 // 서버에서 구독 정보 제거 (실제 구현에서는 API 호출)
 async function removeSubscriptionFromServer(subscription: PushSubscription): Promise<void> {
   // TODO: 실제 API 엔드포인트에서 구독 정보 제거
-  console.log('Removing subscription from server:', subscription);
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Removing subscription from server:', subscription);
+  }
   
   try {
     // 예시 API 호출
