@@ -2,7 +2,6 @@
   "short_name": "LevelUp",
   "name": "LevelUp - 학습 게이미피케이션 플랫폼",
   "description": "목표 설정, 습관 추적, 게이미피케이션을 통한 개인 성장 플랫폼",
-  "icons": [],
   "start_url": "/",
   "display": "standalone",
   "display_override": ["standalone", "minimal-ui"],

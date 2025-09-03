@@ -448,7 +448,10 @@ export const useNotifications = () => {
 
   const fetchUnreadCount = useCallback(async () => {
     if (!user?.id) {
-      console.warn('User not authenticated, skipping unread count fetch');
+      // 개발 모드에서만 경고 메시지 출력
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('User not authenticated, skipping unread count fetch');
+      }
       return;
     }
     

@@ -24,6 +24,7 @@ interface PerformanceMetrics {
 class PerformanceCollector {
   private metrics: PerformanceMetrics = {};
   private observers: PerformanceObserver[] = [];
+  private lastMemoryWarning?: number;
 
   constructor() {
     this.initializeObservers();
@@ -127,8 +128,14 @@ class PerformanceCollector {
       
       this.metrics.memoryUsage = (usedJSHeapSize / totalJSHeapSize) * 100;
       
-      if (this.metrics.memoryUsage > 80) {
-        console.warn(`High memory usage detected: ${this.metrics.memoryUsage.toFixed(2)}%`);
+      // 메모리 경고 임계값을 95%로 상향 조정하고 로그 빈도 제한
+      if (this.metrics.memoryUsage > 95) {
+        // 5초마다 한 번만 경고 로그 출력
+        const now = Date.now();
+        if (!this.lastMemoryWarning || now - this.lastMemoryWarning > 5000) {
+          console.warn(`Critical memory usage detected: ${this.metrics.memoryUsage.toFixed(2)}%`);
+          this.lastMemoryWarning = now;
+        }
       }
       
       return this.metrics.memoryUsage;
