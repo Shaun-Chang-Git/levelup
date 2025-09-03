@@ -1,14 +1,13 @@
 // LevelUp PWA Service Worker
-const CACHE_NAME = 'levelup-v1.0.0';
-const STATIC_CACHE_NAME = 'levelup-static-v1.0.0';
-const DYNAMIC_CACHE_NAME = 'levelup-dynamic-v1.0.0';
+const CACHE_NAME = 'levelup-v1.0.1';
+const STATIC_CACHE_NAME = 'levelup-static-v1.0.1';
+const DYNAMIC_CACHE_NAME = 'levelup-dynamic-v1.0.1';
 
 // 캐시할 정적 자원들
 const STATIC_ASSETS = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/manifest.json',
   '/favicon.ico',
   // 오프라인 페이지
   '/offline.html'
