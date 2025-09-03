@@ -31,8 +31,8 @@ const DashboardPage: React.FC = () => {
     clearError 
   } = useStatistics();
 
-  // 로딩 중일 때
-  if (loading || !dashboardStats) {
+  // 로딩 중일 때 또는 초기 데이터가 없을 때
+  if (loading || (dashboardStats === null)) {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '50vh' }}>
@@ -62,19 +62,19 @@ const DashboardPage: React.FC = () => {
               안녕하세요, {dashboardStats.profile?.display_name || '사용자'}님! 👋
             </Typography>
             <Typography variant="body1" color="text.secondary" gutterBottom>
-              레벨 {dashboardStats.profile.level} • {dashboardStats.profile.total_points} 포인트 • {dashboardStats.currentStreak}일 연속 달성
+              레벨 {dashboardStats.profile?.level || 1} • {dashboardStats.profile?.total_points || 0} 포인트 • {dashboardStats.currentStreak || 0}일 연속 달성
             </Typography>
             <Box sx={{ display: 'flex', alignItems: 'center', mt: 2 }}>
               <Typography variant="body2" sx={{ mr: 2 }}>
-                레벨 {dashboardStats.profile.level + 1}까지
+                레벨 {(dashboardStats.profile?.level || 1) + 1}까지
               </Typography>
               <LinearProgress 
                 variant="determinate" 
-                value={dashboardStats.profile.levelProgress} 
+                value={dashboardStats.profile?.levelProgress || 0} 
                 sx={{ flex: 1, mr: 2, height: 8, borderRadius: 4 }}
               />
               <Typography variant="body2">
-                {dashboardStats.profile.experiencePoints}/{dashboardStats.profile.nextLevelXp} XP
+                {dashboardStats.profile?.experiencePoints || 0}/{dashboardStats.profile?.nextLevelXp || 1000} XP
               </Typography>
             </Box>
           </Box>
@@ -87,7 +87,7 @@ const DashboardPage: React.FC = () => {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h3" color="primary.main">
-                {dashboardStats.totalGoals}
+                {dashboardStats.totalGoals || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 총 목표
@@ -100,7 +100,7 @@ const DashboardPage: React.FC = () => {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h3" color="success.main">
-                {dashboardStats.completedGoals}
+                {dashboardStats.completedGoals || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 완료된 목표
@@ -113,7 +113,7 @@ const DashboardPage: React.FC = () => {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h3" color="info.main">
-                {dashboardStats.activeGoals}
+                {dashboardStats.activeGoals || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 진행 중 목표
@@ -126,7 +126,7 @@ const DashboardPage: React.FC = () => {
           <Card>
             <CardContent sx={{ textAlign: 'center' }}>
               <Typography variant="h3" color="error.main">
-                {dashboardStats.currentStreak}
+                {dashboardStats.currentStreak || 0}
               </Typography>
               <Typography variant="body2" color="text.secondary">
                 연속 달성 일수
@@ -151,8 +151,8 @@ const DashboardPage: React.FC = () => {
               </Button>
             </Box>
             <Box sx={{ mt: 2 }}>
-              {dashboardStats.recentActiveGoals.length > 0 ? (
-                dashboardStats.recentActiveGoals.map((goal: any) => (
+              {(dashboardStats.recentActiveGoals?.length || 0) > 0 ? (
+                dashboardStats.recentActiveGoals?.map((goal: any) => (
                   <Box key={goal.id} sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
                       <Typography variant="body1">{goal.title}</Typography>
@@ -211,14 +211,14 @@ const DashboardPage: React.FC = () => {
             <Box sx={{ mt: 2 }}>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
                 <Typography variant="h4" color="warning.main" sx={{ mr: 2 }}>
-                  {dashboardStats.totalAchievements}
+                  {dashboardStats.totalAchievements || 0}
                 </Typography>
                 <Box>
                   <Typography variant="body1">
                     달성한 업적
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    완료율: {dashboardStats.completionRate}%
+                    완료율: {dashboardStats.completionRate || 0}%
                   </Typography>
                 </Box>
               </Box>
@@ -235,7 +235,7 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               주간 목표 진행률
             </Typography>
-            <WeeklyProgressChart data={dashboardStats.weeklyActivity} height={250} showArea />
+            <WeeklyProgressChart data={dashboardStats.weeklyActivity || []} height={250} showArea />
           </Paper>
         </Grid>
 
@@ -245,7 +245,7 @@ const DashboardPage: React.FC = () => {
             <Typography variant="h6" gutterBottom>
               카테고리별 완료율
             </Typography>
-            <CategoryChart data={dashboardStats.categoryStats} height={250} chartType="pie" />
+            <CategoryChart data={dashboardStats.categoryStats || []} height={250} chartType="pie" />
           </Paper>
         </Grid>
       </Grid>

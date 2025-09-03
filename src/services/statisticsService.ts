@@ -4,7 +4,11 @@ export class StatisticsService {
   // 사용자 대시보드 통계 조회
   static async getDashboardStats(userId: string): Promise<any> {
     try {
+      console.log('=== StatisticsService.getDashboardStats START ===');
+      console.log('User ID:', userId);
+      
       // 병렬로 데이터 조회
+      console.log('Starting parallel data fetch...');
       const [profileResult, goalsResult, achievementsResult] = await Promise.all([
         // 프로필 정보
         supabase
@@ -29,11 +33,18 @@ export class StatisticsService {
           .eq('user_id', userId)
       ]);
 
+      console.log('Parallel fetch completed');
+      console.log('Profile result:', profileResult.error ? 'ERROR' : 'SUCCESS');
+      console.log('Goals result:', goalsResult.error ? 'ERROR' : 'SUCCESS');
+      console.log('Achievements result:', achievementsResult.error ? 'ERROR' : 'SUCCESS');
+
       if (profileResult.error) {
+        console.error('Profile error:', profileResult.error);
         throw new Error(`프로필 조회 실패: ${profileResult.error.message}`);
       }
 
       if (goalsResult.error) {
+        console.error('Goals error:', goalsResult.error);
         throw new Error(`목표 조회 실패: ${goalsResult.error.message}`);
       }
 
@@ -112,6 +123,9 @@ export class StatisticsService {
 
       const weeklyActivity = weeklyActivityResult.data || [];
 
+      console.log('=== StatisticsService.getDashboardStats SUCCESS ===');
+      console.log('Returning dashboard stats...');
+      
       return {
         // 기본 통계
         totalGoals,
