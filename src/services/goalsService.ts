@@ -135,14 +135,14 @@ export class GoalsService {
     console.log('Goal ID:', goalId);
     console.log('Goal ID type:', typeof goalId);
     
-    // complete_goal 함수 직접 호출 (기존 함수명 사용)
-    console.log('Calling complete_goal function...');
+    // complete_goal_fixed 함수 호출 (user_id 모호성 문제 해결된 새 함수)
+    console.log('Calling complete_goal_fixed function...');
     const { data, error } = await supabase
-      .rpc('complete_goal', {
+      .rpc('complete_goal_fixed', {
         p_goal_id: goalId,
       });
 
-    console.log('complete_goal result:');
+    console.log('complete_goal_fixed result:');
     console.log('- Data:', data);
     console.log('- Error:', error);
 
