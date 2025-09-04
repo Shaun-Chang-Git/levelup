@@ -124,31 +124,19 @@ export class GoalsService {
     }
   }
 
-  // 목표 진행률 업데이트 (Supabase 함수 호출)
+  // 목표 진행률 업데이트 (완전히 재설계된 SQL 함수 사용)
   static async updateProgress(goalId: string, progressAmount: number, note?: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
       console.log('Updating progress:', goalId, progressAmount);
     }
     
-    // 새로운 함수 시도
-    let { data, error } = await supabase
-      .rpc('update_goal_progress_v2', {
+    // 완전히 재설계된 SQL 함수 사용
+    const { data, error } = await supabase
+      .rpc('update_goal_progress_fixed', {
         p_goal_id: goalId,
         p_progress_amount: progressAmount,
         p_note: note || null,
       });
-
-    // 폴백
-    if (error && error.message.includes('function update_goal_progress_v2')) {
-      const fallbackResult = await supabase
-        .rpc('update_goal_progress', {
-          p_goal_id: goalId,
-          p_progress_amount: progressAmount,
-          p_note: note || null,
-        });
-      data = fallbackResult.data;
-      error = fallbackResult.error;
-    }
 
     if (error) {
       console.error('Update progress error:', error);
@@ -161,23 +149,23 @@ export class GoalsService {
     return data;
   }
 
-  // 목표 완료 처리 (RLS 우회 SQL 함수 사용)
+  // 목표 완료 처리 (완전히 재설계된 SQL 함수 사용)
   static async completeGoal(goalId: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
       console.log('=== GOAL COMPLETION DEBUG ===');
       console.log('Goal ID:', goalId);
       console.log('Goal ID type:', typeof goalId);
-      console.log('Using simple_complete_goal function to bypass RLS...');
+      console.log('Using complete_goal_fixed function with proper table references...');
     }
     
     try {
-      // RLS 정책을 우회하는 SECURITY DEFINER 함수 사용
-      const { data, error } = await supabase.rpc('simple_complete_goal', {
-        goal_uuid: goalId
+      // 완전히 재설계된 SQL 함수 사용 (테이블.컬럼 명시)
+      const { data, error } = await supabase.rpc('complete_goal_fixed', {
+        p_goal_id: goalId
       });
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('=== SIMPLE_COMPLETE_GOAL RPC RESULT ===');
+        console.log('=== COMPLETE_GOAL_FIXED RPC RESULT ===');
         console.log('- Data:', data);
         console.log('- Error:', error);
       }
