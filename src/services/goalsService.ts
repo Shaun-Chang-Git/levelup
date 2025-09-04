@@ -210,7 +210,7 @@ export class GoalsService {
         throw new Error('Goal already completed');
       }
 
-      // 3. 목표 완료 상태 업데이트
+      // 3. 목표 완료 상태 업데이트 (RLS가 user_id를 자동으로 확인하므로 제거)
       console.log('Step 3: Updating goal status...');
       const { error: updateGoalError } = await supabase
         .from('goals')
@@ -219,8 +219,7 @@ export class GoalsService {
           completed_at: new Date().toISOString(),
           updated_at: new Date().toISOString()
         })
-        .eq('id', goalId)
-        .eq('user_id', user.id);
+        .eq('id', goalId);
 
       console.log('Goal update result - Error:', updateGoalError);
 
