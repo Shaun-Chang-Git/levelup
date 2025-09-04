@@ -167,12 +167,13 @@ export class GoalsService {
       console.log('=== GOAL COMPLETION DEBUG ===');
       console.log('Goal ID:', goalId);
       console.log('Goal ID type:', typeof goalId);
-      console.log('Calling complete_goal_fixed function...');
+      console.log('Calling complete_goal function...');
     }
     
     let data, error;
     try {
-      const result = await supabase.rpc('complete_goal_fixed', {
+      // 새로운 complete_goal 함수 호출 (user_id 모호성 해결됨)
+      const result = await supabase.rpc('complete_goal', {
         p_goal_id: goalId,
       });
       data = result.data;
@@ -186,30 +187,9 @@ export class GoalsService {
       }
       
     } catch (networkError) {
-      console.error('=== NETWORK ERROR - TRYING FALLBACK ===');
+      console.error('=== NETWORK ERROR ===');
       console.error('Network error:', networkError);
-      if (process.env.NODE_ENV === 'development') {
-        console.log('Trying fallback to complete_goal function...');
-      }
-      
-      try {
-        const fallbackResult = await supabase.rpc('complete_goal', {
-          p_goal_id: goalId,
-        });
-        data = fallbackResult.data;
-        error = fallbackResult.error;
-        
-        if (process.env.NODE_ENV === 'development') {
-          console.log('=== FALLBACK RPC CALL COMPLETED ===');
-          console.log('- Data:', data);
-          console.log('- Error:', error);
-        }
-        
-      } catch (fallbackError) {
-        console.error('=== FALLBACK ALSO FAILED ===');
-        console.error('Fallback error:', fallbackError);
-        throw new Error(`모든 함수 호출 실패: ${fallbackError.message}`);
-      }
+      throw new Error(`함수 호출 네트워크 실패: ${networkError.message}`);
     }
 
     if (error) {

@@ -147,11 +147,19 @@ export const useGoals = () => {
       
       return result;
     } catch (err) {
+      console.error('=== GOAL COMPLETION ERROR IN HOOK ===');
+      console.error('Error:', err);
       const errorMessage = err instanceof Error ? err.message : '목표 완료 실패';
       setError(errorMessage);
+      
+      // 에러 발생 시에도 로딩 상태 즉시 해제
+      setLoading(false);
       throw new Error(errorMessage);
     } finally {
-      setLoading(false);
+      // 정상 완료시에만 로딩 해제 (loadGoals에서 자체 로딩 관리)
+      if (!error) {
+        setLoading(false);
+      }
     }
   };
 
