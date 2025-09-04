@@ -161,142 +161,44 @@ export class GoalsService {
     return data;
   }
 
-  // 목표 완료 처리 (JavaScript에서 직접 처리)
+  // 목표 완료 처리 (RLS 우회 SQL 함수 사용)
   static async completeGoal(goalId: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
       console.log('=== GOAL COMPLETION DEBUG ===');
       console.log('Goal ID:', goalId);
       console.log('Goal ID type:', typeof goalId);
-      console.log('Processing goal completion directly in JavaScript...');
+      console.log('Using simple_complete_goal function to bypass RLS...');
     }
     
     try {
-      // 1. 현재 사용자 확인
-      console.log('Step 1: Getting authenticated user...');
-      const { data: { user }, error: authError } = await supabase.auth.getUser();
-      if (authError || !user) {
-        console.error('Auth error:', authError);
-        throw new Error('Not authenticated');
-      }
-      console.log('User authenticated:', user.id);
+      // RLS 정책을 우회하는 SECURITY DEFINER 함수 사용
+      const { data, error } = await supabase.rpc('simple_complete_goal', {
+        goal_uuid: goalId
+      });
 
-      // 2. 목표 정보 조회 - 단계별 디버깅
-      console.log('Step 2: Querying goal data...');
-      console.log('Query params - goalId:', goalId, 'userId:', user.id);
-      
-      const { data: goalData, error: goalError } = await supabase
-        .from('goals')
-        .select('id, user_id, title, status, reward_points')
-        .eq('id', goalId)
-        .eq('user_id', user.id)
-        .single();
-
-      console.log('Goal query result:');
-      console.log('- Data:', goalData);
-      console.log('- Error:', goalError);
-
-      if (goalError) {
-        console.error('Goal query failed with error:', goalError);
-        throw new Error(`Goal query failed: ${goalError.message}`);
-      }
-      
-      if (!goalData) {
-        throw new Error('Goal not found or unauthorized');
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== SIMPLE_COMPLETE_GOAL RPC RESULT ===');
+        console.log('- Data:', data);
+        console.log('- Error:', error);
       }
 
-      console.log('Goal found:', goalData.title);
-
-      if (goalData.status === 'completed') {
-        throw new Error('Goal already completed');
+      if (error) {
+        console.error('RPC function failed with error:', error);
+        throw new Error(`Goal completion failed: ${error.message}`);
       }
 
-      // 3. 목표 완료 상태 업데이트 (RLS가 user_id를 자동으로 확인하므로 제거)
-      console.log('Step 3: Updating goal status...');
-      const { error: updateGoalError } = await supabase
-        .from('goals')
-        .update({
-          status: 'completed',
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', goalId);
-
-      console.log('Goal update result - Error:', updateGoalError);
-
-      if (updateGoalError) {
-        console.error('Goal update failed with error:', updateGoalError);
-        throw new Error(`Failed to update goal: ${updateGoalError.message}`);
+      // SQL 함수에서 success: false를 반환한 경우 에러 처리
+      if (data && typeof data === 'object' && data.success === false) {
+        console.error('SQL function returned success: false:', data.error);
+        throw new Error(`목표 완료 실패: ${data.error}`);
       }
-
-      console.log('Goal updated successfully');
-
-      // 4. 사용자 프로필 조회
-      console.log('Step 4: Querying user profile...');
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('total_points, level')
-        .eq('id', user.id)
-        .single();
-
-      console.log('Profile query result:');
-      console.log('- Data:', profileData);
-      console.log('- Error:', profileError);
-
-      if (profileError) {
-        console.error('Profile query failed with error:', profileError);
-        throw new Error(`Failed to get user profile: ${profileError.message}`);
-      }
-
-      if (!profileData) {
-        throw new Error('User profile not found');
-      }
-
-      // 5. 포인트 및 레벨 계산
-      console.log('Step 5: Calculating points and level...');
-      const newTotalPoints = profileData.total_points + goalData.reward_points;
-      const newLevel = Math.floor(newTotalPoints / 1000) + 1;
-      const levelUp = newLevel > profileData.level;
-      
-      console.log('Calculations:');
-      console.log('- Current points:', profileData.total_points);
-      console.log('- Reward points:', goalData.reward_points);
-      console.log('- New total points:', newTotalPoints);
-      console.log('- Current level:', profileData.level);
-      console.log('- New level:', newLevel);
-      console.log('- Level up:', levelUp);
-
-      // 6. 프로필 업데이트
-      console.log('Step 6: Updating user profile...');
-      const { error: updateProfileError } = await supabase
-        .from('profiles')
-        .update({
-          total_points: newTotalPoints,
-          level: newLevel,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      console.log('Profile update result - Error:', updateProfileError);
-
-      if (updateProfileError) {
-        throw new Error(`Failed to update profile: ${updateProfileError.message}`);
-      }
-
-      const result = {
-        success: true,
-        goal_title: goalData.title,
-        points_earned: goalData.reward_points,
-        total_points: newTotalPoints,
-        current_level: newLevel,
-        level_up: levelUp
-      };
 
       if (process.env.NODE_ENV === 'development') {
         console.log('=== GOAL COMPLETION SUCCESS ===');
-        console.log('Result:', result);
+        console.log('Result:', data);
       }
 
-      return result;
+      return data;
 
     } catch (err) {
       console.error('=== GOAL COMPLETION ERROR ===');
