@@ -156,10 +156,8 @@ export const useGoals = () => {
       setLoading(false);
       throw new Error(errorMessage);
     } finally {
-      // 정상 완료시에만 로딩 해제 (loadGoals에서 자체 로딩 관리)
-      if (!error) {
-        setLoading(false);
-      }
+      // 항상 로딩 상태 해제 (에러 발생 시에도)
+      setLoading(false);
     }
   };
 

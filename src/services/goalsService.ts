@@ -167,23 +167,42 @@ export class GoalsService {
       console.log('=== GOAL COMPLETION DEBUG ===');
       console.log('Goal ID:', goalId);
       console.log('Goal ID type:', typeof goalId);
-      console.log('Calling complete_goal function...');
+      console.log('Trying complete_goal_v3 function...');
     }
     
     let data, error;
     try {
-      // 새로운 complete_goal 함수 호출 (user_id 모호성 해결됨)
-      const result = await supabase.rpc('complete_goal', {
+      // 새로운 complete_goal_v3 함수 호출 (user_id 모호성 완전 해결)
+      const result = await supabase.rpc('complete_goal_v3', {
         p_goal_id: goalId,
       });
       data = result.data;
       error = result.error;
       
       if (process.env.NODE_ENV === 'development') {
-        console.log('=== RPC CALL COMPLETED ===');
+        console.log('=== V3 RPC CALL COMPLETED ===');
         console.log('- Data:', data);
         console.log('- Error:', error);
         console.log('- Data type:', typeof data);
+      }
+      
+      // V3 함수가 없으면 기존 함수들 시도
+      if (error && (error.code === '42883' || error.message?.includes('function complete_goal_v3'))) {
+        if (process.env.NODE_ENV === 'development') {
+          console.log('V3 function not found, trying complete_goal...');
+        }
+        
+        const fallbackResult = await supabase.rpc('complete_goal', {
+          p_goal_id: goalId,
+        });
+        data = fallbackResult.data;
+        error = fallbackResult.error;
+        
+        if (process.env.NODE_ENV === 'development') {
+          console.log('=== FALLBACK RPC CALL COMPLETED ===');
+          console.log('- Data:', data);
+          console.log('- Error:', error);
+        }
       }
       
     } catch (networkError) {
