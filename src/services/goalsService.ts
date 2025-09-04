@@ -161,58 +161,104 @@ export class GoalsService {
     return data;
   }
 
-  // 목표 완료 처리 (Supabase 함수 호출)
+  // 목표 완료 처리 (JavaScript에서 직접 처리)
   static async completeGoal(goalId: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
       console.log('=== GOAL COMPLETION DEBUG ===');
       console.log('Goal ID:', goalId);
       console.log('Goal ID type:', typeof goalId);
-      console.log('Calling process_goal_completion function...');
+      console.log('Processing goal completion directly in JavaScript...');
     }
     
-    let data, error;
     try {
-      // 새로운 process_goal_completion 함수 호출 (RLS와 호환되는 완전 새 함수)
-      const result = await supabase.rpc('process_goal_completion', {
-        target_goal_id: goalId,
-      });
-      data = result.data;
-      error = result.error;
-      
-      if (process.env.NODE_ENV === 'development') {
-        console.log('=== PROCESS_GOAL_COMPLETION RPC COMPLETED ===');
-        console.log('- Data:', data);
-        console.log('- Error:', error);
-        console.log('- Data type:', typeof data);
+      // 1. 현재 사용자 확인
+      const { data: { user }, error: authError } = await supabase.auth.getUser();
+      if (authError || !user) {
+        throw new Error('Not authenticated');
       }
-      
-    } catch (networkError) {
-      console.error('=== NETWORK ERROR ===');
-      console.error('Network error:', networkError);
-      throw new Error(`함수 호출 네트워크 실패: ${networkError.message}`);
-    }
 
-    if (error) {
+      // 2. 목표 정보 조회
+      const { data: goalData, error: goalError } = await supabase
+        .from('goals')
+        .select('*')
+        .eq('id', goalId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (goalError || !goalData) {
+        throw new Error('Goal not found or unauthorized');
+      }
+
+      if (goalData.status === 'completed') {
+        throw new Error('Goal already completed');
+      }
+
+      // 3. 트랜잭션 시뮬레이션: 목표 완료 처리
+      const { error: updateGoalError } = await supabase
+        .from('goals')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', goalId)
+        .eq('user_id', user.id);
+
+      if (updateGoalError) {
+        throw new Error(`Failed to update goal: ${updateGoalError.message}`);
+      }
+
+      // 4. 사용자 프로필 조회
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('total_points, level')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError || !profileData) {
+        throw new Error('Failed to get user profile');
+      }
+
+      // 5. 포인트 및 레벨 계산
+      const newTotalPoints = profileData.total_points + goalData.reward_points;
+      const newLevel = Math.floor(newTotalPoints / 1000) + 1;
+      const levelUp = newLevel > profileData.level;
+
+      // 6. 프로필 업데이트
+      const { error: updateProfileError } = await supabase
+        .from('profiles')
+        .update({
+          total_points: newTotalPoints,
+          level: newLevel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (updateProfileError) {
+        throw new Error(`Failed to update profile: ${updateProfileError.message}`);
+      }
+
+      const result = {
+        success: true,
+        goal_title: goalData.title,
+        points_earned: goalData.reward_points,
+        total_points: newTotalPoints,
+        current_level: newLevel,
+        level_up: levelUp
+      };
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== GOAL COMPLETION SUCCESS ===');
+        console.log('Result:', result);
+      }
+
+      return result;
+
+    } catch (err) {
       console.error('=== GOAL COMPLETION ERROR ===');
-      console.error('Error object:', error);
-      console.error('Error message:', error.message);
-      console.error('Error code:', error.code);
-      console.error('Error details:', error.details);
-      throw new Error(`목표 완료 처리 실패: ${error.message}`);
+      console.error('Error:', err);
+      throw err;
     }
-
-    console.log('=== GOAL COMPLETION SUCCESS ===');
-    console.log('Goal completed successfully:', data);
-    console.log('Data.success:', data?.success);
-    console.log('Data.error:', data?.error);
-    
-    // SQL 함수에서 success: false를 반환한 경우 에러 처리
-    if (data && typeof data === 'object' && data.success === false) {
-      console.error('SQL function returned success: false:', data.error);
-      throw new Error(`목표 완료 실패: ${data.error}`);
-    }
-    
-    return data;
   }
 
   // 목표의 진행 기록 조회
