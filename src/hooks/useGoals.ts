@@ -130,8 +130,10 @@ export const useGoals = () => {
 
   // 목표 완료
   const completeGoal = async (goalId: string) => {
+    let loadingState = false;
     try {
       setLoading(true);
+      loadingState = true;
       console.log('=== useGoals completeGoal START ===');
       console.log('Goal ID:', goalId);
       
@@ -145,6 +147,10 @@ export const useGoals = () => {
       await loadGoals();
       console.log('Goals reloaded successfully');
       
+      // 성공 시 로딩 해제
+      setLoading(false);
+      loadingState = false;
+      
       return result;
     } catch (err) {
       console.error('=== GOAL COMPLETION ERROR IN HOOK ===');
@@ -152,12 +158,19 @@ export const useGoals = () => {
       const errorMessage = err instanceof Error ? err.message : '목표 완료 실패';
       setError(errorMessage);
       
-      // 에러 발생 시에도 로딩 상태 즉시 해제
-      setLoading(false);
+      // 에러 발생 시 즉시 로딩 해제
+      if (loadingState) {
+        setLoading(false);
+        loadingState = false;
+      }
+      
       throw new Error(errorMessage);
     } finally {
-      // 항상 로딩 상태 해제 (에러 발생 시에도)
-      setLoading(false);
+      // 마지막 보장: 로딩이 아직 true면 해제
+      if (loadingState) {
+        console.log('Finally block: ensuring loading is false');
+        setLoading(false);
+      }
     }
   };
 
