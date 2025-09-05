@@ -130,7 +130,7 @@ export class GoalsService {
       console.log('Updating progress:', goalId, progressAmount);
     }
     
-    // 완전히 재설계된 SQL 함수 사용
+    // 새로운 update_goal_progress_fixed 함수 사용 (user_id 모호성 문제 해결)
     const { data, error } = await supabase
       .rpc('update_goal_progress_fixed', {
         p_goal_id: goalId,
@@ -159,9 +159,9 @@ export class GoalsService {
     }
     
     try {
-      // 임시로 기존 함수 사용 (새 함수 배포까지)
-      const { data, error } = await supabase.rpc('simple_complete_goal', {
-        goal_uuid: goalId
+      // 새로운 complete_goal_fixed 함수 사용 (user_id 모호성 문제 해결)
+      const { data, error } = await supabase.rpc('complete_goal_fixed', {
+        p_goal_id: goalId
       });
 
       if (process.env.NODE_ENV === 'development') {
