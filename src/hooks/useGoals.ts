@@ -130,10 +130,9 @@ export const useGoals = () => {
 
   // 목표 완료
   const completeGoal = async (goalId: string) => {
-    let loadingState = false;
     try {
       setLoading(true);
-      loadingState = true;
+      setError(null); // 이전 에러 초기화
       console.log('=== useGoals completeGoal START ===');
       console.log('Goal ID:', goalId);
       
@@ -142,14 +141,15 @@ export const useGoals = () => {
       console.log('Result:', result);
       console.log('Result type:', typeof result);
       
-      // 목표 목록 다시 로드 (완료 상태 반영)
-      console.log('Reloading goals after completion...');
-      await loadGoals();
-      console.log('Goals reloaded successfully');
-      
-      // 성공 시 로딩 해제
-      setLoading(false);
-      loadingState = false;
+      // 목표 목록 다시 로드 (완료 상태 반영) - 에러가 나더라도 로딩은 해제되도록 함
+      try {
+        console.log('Reloading goals after completion...');
+        await loadGoals();
+        console.log('Goals reloaded successfully');
+      } catch (reloadErr) {
+        console.error('Goal reload failed, but completion was successful:', reloadErr);
+        // 리로드 실패해도 완료는 성공한 상태이므로 에러로 처리하지 않음
+      }
       
       return result;
     } catch (err) {
@@ -157,20 +157,11 @@ export const useGoals = () => {
       console.error('Error:', err);
       const errorMessage = err instanceof Error ? err.message : '목표 완료 실패';
       setError(errorMessage);
-      
-      // 에러 발생 시 즉시 로딩 해제
-      if (loadingState) {
-        setLoading(false);
-        loadingState = false;
-      }
-      
       throw new Error(errorMessage);
     } finally {
-      // 마지막 보장: 로딩이 아직 true면 해제
-      if (loadingState) {
-        console.log('Finally block: ensuring loading is false');
-        setLoading(false);
-      }
+      // 항상 로딩 해제 - 무조건 실행됨
+      console.log('Finally block: ensuring loading is false');
+      setLoading(false);
     }
   };
 

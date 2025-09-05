@@ -159,9 +159,9 @@ export class GoalsService {
     }
     
     try {
-      // 완전히 재설계된 SQL 함수 사용 (테이블.컬럼 명시)
-      const { data, error } = await supabase.rpc('complete_goal_fixed', {
-        p_goal_id: goalId
+      // 임시로 기존 함수 사용 (새 함수 배포까지)
+      const { data, error } = await supabase.rpc('simple_complete_goal', {
+        goal_uuid: goalId
       });
 
       if (process.env.NODE_ENV === 'development') {
