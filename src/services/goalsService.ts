@@ -149,47 +149,87 @@ export class GoalsService {
     return data;
   }
 
-  // 목표 완료 처리 (완전히 재설계된 SQL 함수 사용)
+  // 목표 완료 - 클라이언트 사이드 구현 (SQL 함수 완전 포기)
   static async completeGoal(goalId: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
-      console.log('=== GOAL COMPLETION DEBUG ===');
+      console.log('=== CLIENT-SIDE GOAL COMPLETION START ===');
       console.log('Goal ID:', goalId);
-      console.log('Goal ID type:', typeof goalId);
-      console.log('Using complete_goal_fixed function with proper table references...');
     }
     
     try {
-      // 통합된 complete_goal_unified 함수 사용 (스키마 일관성 문제 해결)
-      const { data, error } = await supabase.rpc('complete_goal_unified', {
-        p_goal_id: goalId
-      });
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('사용자 인증이 필요합니다.');
+      }
+
+      // 1. 목표 정보 조회
+      const { data: goal, error: goalError } = await supabase
+        .from('goals')
+        .select('id, title, status, reward_points')
+        .eq('id', goalId)
+        .eq('user_id', user.id)
+        .single();
+
+      if (goalError) throw goalError;
+      if (!goal) throw new Error('목표를 찾을 수 없습니다.');
+      if (goal.status === 'completed') throw new Error('이미 완료된 목표입니다.');
+
+      // 2. 목표 완료 처리
+      const { error: updateError } = await supabase
+        .from('goals')
+        .update({ 
+          status: 'completed', 
+          completed_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', goalId)
+        .eq('user_id', user.id);
+
+      if (updateError) throw updateError;
+
+      // 3. 프로필 조회
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('total_points, level')
+        .eq('id', user.id)
+        .single();
+
+      if (profileError) throw profileError;
+
+      // 4. 포인트 및 레벨 계산
+      const newTotalPoints = (profile?.total_points || 0) + (goal.reward_points || 0);
+      const newLevel = Math.max(Math.floor(newTotalPoints / 1000) + 1, profile?.level || 1);
+
+      // 5. 프로필 업데이트
+      const { error: profileUpdateError } = await supabase
+        .from('profiles')
+        .update({
+          total_points: newTotalPoints,
+          level: newLevel,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id);
+
+      if (profileUpdateError) throw profileUpdateError;
+
+      const result = {
+        success: true,
+        goal_title: goal.title,
+        points_earned: goal.reward_points,
+        total_points: newTotalPoints,
+        level: newLevel,
+        level_up: newLevel > (profile?.level || 1)
+      };
 
       if (process.env.NODE_ENV === 'development') {
-        console.log('=== COMPLETE_GOAL_FIXED RPC RESULT ===');
-        console.log('- Data:', data);
-        console.log('- Error:', error);
+        console.log('=== CLIENT-SIDE COMPLETION SUCCESS ===');
+        console.log('Result:', result);
       }
 
-      if (error) {
-        console.error('RPC function failed with error:', error);
-        throw new Error(`Goal completion failed: ${error.message}`);
-      }
-
-      // SQL 함수에서 success: false를 반환한 경우 에러 처리
-      if (data && typeof data === 'object' && data.success === false) {
-        console.error('SQL function returned success: false:', data.error);
-        throw new Error(`목표 완료 실패: ${data.error}`);
-      }
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('=== GOAL COMPLETION SUCCESS ===');
-        console.log('Result:', data);
-      }
-
-      return data;
+      return result;
 
     } catch (err) {
-      console.error('=== GOAL COMPLETION ERROR ===');
+      console.error('=== CLIENT-SIDE GOAL COMPLETION ERROR ===');
       console.error('Error:', err);
       throw err;
     }
