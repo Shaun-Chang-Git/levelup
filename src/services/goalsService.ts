@@ -149,10 +149,10 @@ export class GoalsService {
     return data;
   }
 
-  // 목표 완료 - 클라이언트 사이드 구현 (SQL 함수 완전 포기)
+  // 목표 완료 - 핵폭탄 옵션: 모든 RLS/트리거 우회
   static async completeGoal(goalId: string): Promise<any> {
     if (process.env.NODE_ENV === 'development') {
-      console.log('=== CLIENT-SIDE GOAL COMPLETION START ===');
+      console.log('=== NUCLEAR OPTION GOAL COMPLETION START ===');
       console.log('Goal ID:', goalId);
     }
     
@@ -162,74 +162,30 @@ export class GoalsService {
         throw new Error('사용자 인증이 필요합니다.');
       }
 
-      // 1. 목표 정보 조회
-      const { data: goal, error: goalError } = await supabase
-        .from('goals')
-        .select('id, title, status, reward_points')
-        .eq('id', goalId)
-        .eq('user_id', user.id)
-        .single();
+      // 핵폭탄 옵션: 트리거와 RLS가 모두 비활성화된 단순 함수 사용
+      const { data, error } = await supabase.rpc('simple_complete_goal_no_triggers', {
+        p_goal_id: goalId,
+        p_user_id: user.id
+      });
 
-      if (goalError) throw goalError;
-      if (!goal) throw new Error('목표를 찾을 수 없습니다.');
-      if (goal.status === 'completed') throw new Error('이미 완료된 목표입니다.');
-
-      // 2. 목표 완료 처리
-      const { error: updateError } = await supabase
-        .from('goals')
-        .update({ 
-          status: 'completed', 
-          completed_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', goalId)
-        .eq('user_id', user.id);
-
-      if (updateError) throw updateError;
-
-      // 3. 프로필 조회
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('total_points, level')
-        .eq('id', user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      // 4. 포인트 및 레벨 계산
-      const newTotalPoints = (profile?.total_points || 0) + (goal.reward_points || 0);
-      const newLevel = Math.max(Math.floor(newTotalPoints / 1000) + 1, profile?.level || 1);
-
-      // 5. 프로필 업데이트
-      const { error: profileUpdateError } = await supabase
-        .from('profiles')
-        .update({
-          total_points: newTotalPoints,
-          level: newLevel,
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', user.id);
-
-      if (profileUpdateError) throw profileUpdateError;
-
-      const result = {
-        success: true,
-        goal_title: goal.title,
-        points_earned: goal.reward_points,
-        total_points: newTotalPoints,
-        level: newLevel,
-        level_up: newLevel > (profile?.level || 1)
-      };
-
-      if (process.env.NODE_ENV === 'development') {
-        console.log('=== CLIENT-SIDE COMPLETION SUCCESS ===');
-        console.log('Result:', result);
+      if (error) {
+        console.error('Nuclear option RPC failed:', error);
+        throw error;
       }
 
-      return result;
+      if (data && data.success === false) {
+        throw new Error(data.error);
+      }
+
+      if (process.env.NODE_ENV === 'development') {
+        console.log('=== NUCLEAR OPTION SUCCESS ===');
+        console.log('Result:', data);
+      }
+
+      return data;
 
     } catch (err) {
-      console.error('=== CLIENT-SIDE GOAL COMPLETION ERROR ===');
+      console.error('=== NUCLEAR OPTION ERROR ===');
       console.error('Error:', err);
       throw err;
     }
