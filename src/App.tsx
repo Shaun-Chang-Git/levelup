@@ -28,6 +28,7 @@ import {
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import SignUpPage from './pages/SignUpPage';
+import { GoalsV2Page } from './pages/GoalsV2Page';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import './App.css';
 
@@ -118,6 +119,14 @@ const ThemedApp: React.FC = () => {
                       <SuspenseWrapper>
                         <LazyGoalsPage />
                       </SuspenseWrapper>
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/goals-v2" 
+                  element={
+                    <ProtectedRoute>
+                      <GoalsV2Page />
                     </ProtectedRoute>
                   } 
                 />
