@@ -159,8 +159,8 @@ export class GoalsService {
     }
     
     try {
-      // 새로운 complete_goal_fixed 함수 사용 (user_id 모호성 문제 해결)
-      const { data, error } = await supabase.rpc('complete_goal_fixed', {
+      // 통합된 complete_goal_unified 함수 사용 (스키마 일관성 문제 해결)
+      const { data, error } = await supabase.rpc('complete_goal_unified', {
         p_goal_id: goalId
       });
 
