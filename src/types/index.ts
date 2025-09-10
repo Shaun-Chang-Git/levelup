@@ -10,35 +10,49 @@ export interface User {
   updatedAt: string;
 }
 
-// 카테고리 관련 타입
-export interface Category {
+// 사용자 프로필 타입 (v2.0 user_profiles 테이블)
+export interface Profile {
   id: string;
-  name: string;
-  description?: string;
-  color: string;
-  icon: string;
-  createdAt: string;
-  updatedAt: string;
+  email: string;
+  display_name?: string;
+  avatar_url?: string;
+  total_points: number;
+  level: number;
+  experience_points: number;
+  created_at: string;
+  updated_at: string;
 }
 
-// 목표 관련 타입
+// 카테고리 관련 타입 (v2.0 호환)
+export interface Category {
+  id: number; // v2.0에서 SERIAL PRIMARY KEY
+  name: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  is_active?: boolean; // v2.0 추가 필드
+  createdAt?: string; // v2.0에서 생성일 없음
+  updatedAt?: string; // v2.0에서 수정일 없음
+}
+
+// 목표 관련 타입 (v2.0 호환)
 export interface Goal {
   id: string;
   user_id: string;
-  category_id: string;
+  category_id: number; // v2.0에서 INTEGER로 변경
   title: string;
   description?: string;
-  target_value: number;
+  target_value?: number; // v2.0에서 nullable
   current_value: number;
-  unit: string;
+  unit?: string; // v2.0에서 제거됨
   status: 'active' | 'completed' | 'paused' | 'cancelled';
-  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
+  difficulty: 'easy' | 'medium' | 'hard'; // expert 제거
   target_date?: string;
   created_at: string;
   updated_at: string;
   completed_at?: string;
   reward_points: number;
-  streak_count: number;
+  streak_count?: number; // v2.0에서 제거됨
   
   // 반복 목표 관련 필드
   is_recurring?: boolean;

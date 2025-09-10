@@ -111,7 +111,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       console.log('Fetching user profile for:', authUser.email);
       const { data, error } = await supabase
-        .from('profiles')
+        .from('user_profiles')
         .select('*')
         .eq('id', authUser.id)
         .single();
@@ -197,7 +197,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const { error } = await supabase
-      .from('profiles')
+      .from('user_profiles')
       .update({
         display_name: updates.display_name,
         avatar_url: updates.avatar_url,

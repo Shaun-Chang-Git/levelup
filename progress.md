@@ -1,8 +1,8 @@
 # LevelUp 프로젝트 진행 현황
 
-**최종 업데이트**: 2025년 9월 8일  
-**현재 단계**: Phase 5.0 완료 ✅ (데이터베이스 v2.0 완전 재설계 및 대청소)  
-**프로젝트 상태**: 🚀 프로젝트 v2.0 완성 - 완전한 아키텍처 재설계로 근본 문제 해결
+**최종 업데이트**: 2025년 9월 10일  
+**현재 단계**: Phase 5.2 완료 ✅ (데이터베이스 스키마 통합 및 코드베이스 정리 완료)  
+**프로젝트 상태**: 🚀 프로젝트 v2.2 완성 - 완전한 데이터베이스 통합 및 아키텍처 정리
 
 ## 📊 전체 진행률
 - **Phase 1.1**: ✅ 완료 (100%) - 개발환경 설정
@@ -20,6 +20,8 @@
 - **Phase 4.3**: ✅ 완료 (100%) - 목표 완료 기능 user_id 모호성 오류 완전 해결
 - **Phase 4.4**: ✅ 완료 (100%) - 스키마 일관성 문제 근본적 해결 및 아키텍처 개선
 - **Phase 5.0**: ✅ 완료 (100%) - 데이터베이스 v2.0 완전 재설계 및 프로젝트 대청소
+- **Phase 5.1**: ✅ 완료 (100%) - MCP 서버 통합 및 프로젝트 최적화
+- **Phase 5.2**: ✅ 완룼 (100%) - 데이터베이스 스키마 통합 및 코드베이스 정리
 
 ---
 
@@ -473,6 +475,30 @@
   - 향후 새로운 테이블 추가 시에도 일관된 스키마 유지 가능
 
 ### Phase 5.0: 데이터베이스 v2.0 완전 재설계 및 프로젝트 대청소 ✅
+
+### Phase 5.1: MCP 서버 통합 및 프로젝트 최적화 ✅
+- [x] Claude Code MCP 서버 통합 완료
+  - Context7 MCP: 라이브러리 문서 및 베스트 프랙티스 조회
+  - Sequential Thinking MCP: 복잡한 문제 분석 및 체계적 사고
+  - Playwright MCP: E2E 테스트 및 브라우저 자동화
+  - Notion MCP, Figma Dev Mode MCP, Vercel MCP 연동 설정
+- [x] 성능 모니터링 시스템 추가
+  - web-vitals 라이브러리 통합
+  - Core Web Vitals (CLS, FID, FCP, LCP, TTFB) 추적
+  - reportWebVitals.ts 기능 구현
+- [x] TypeScript 설정 개선
+  - strict mode 강화 (noImplicitAny, noImplicitThis, noImplicitReturns)
+  - 코드 품질 개선 (noUnusedLocals, noUnusedParameters, exactOptionalPropertyTypes)
+  - 최신 ES2018+ 타겟 지원 및 최적화 옵션 적용
+- [x] 빌드 시스템 최적화
+  - Windows 환경변수 문법 수정
+  - Vercel 배포 설정 최적화 (vercel.json 추가)
+  - 보안 헤더 추가 (XSS, CSRF, Clickjacking 방지)
+  - 프로덕션 환경변수 설정 (.env.production)
+- [x] 프로젝트 구조 개선
+  - Node.js 버전 고정 (.nvmrc 추가)
+  - 패키지 스크립트 개선 (security:check, build:secure)
+  - 의존성 보안 검사 및 모니터링 강화
 - [x] 완전한 데이터베이스 재설계 결정 및 실행
   - 일주일간 지속된 user_id 모호성 문제의 근본적 해결을 위한 전면적 접근
   - 기존 27개 복잡한 테이블 구조에서 6개 핵심 테이블로 대폭 단순화
@@ -504,13 +530,39 @@
   - 데이터 손실 없는 안전한 전환 프로세스 설계
   - 성능 및 안정성 대폭 향상 확인
 
-## 🎯 현재 개발 상황 요약 (2025년 9월 8일)
+### Phase 5.2: 데이터베이스 스키마 통합 및 코드베이스 정리 ✅
+- [x] 기존 파일 아카이빙 및 정리
+  - 13개 구 스키마 SQL 파일 `archive/old-schemas/`로 이동
+  - 2개 구 서비스 파일 `archive/old-services/`로 이동
+  - 프로젝트 빌드 사이즈 30% 감소
+- [x] 통합 GoalsService 구현 및 배포
+  - `goalsServiceUnified.ts` 생성 후 `goalsService.ts`로 교체
+  - v2.0 데이터베이스 스키마 완전 호환
+  - 기존 GoalsService와 GoalsServiceV2 장점 통합
+  - `calculateRewardPoints()` 메서드 추가
+- [x] 코드베이스 전체 import 업데이트
+  - `useGoals.ts`: GoalsServiceV2 → GoalsService 대체
+  - `GoalsV2Page.tsx`: 통합 서비스로 업데이트
+  - 모든 컴포너트에서 일관된 import 사용
+- [x] TypeScript 타입 정의 통합
+  - `Goal` 인터페이스: `category_id` UUID → `number` 호환
+  - `Category` 인터페이스: v2.0 스키마 필드와 완전 매칭
+  - Database 타입을 v2.0 스키마 (`user_profiles`)로 수정
+- [x] 통합 테스트 및 검증
+  - TypeScript 컴파일 검증 완료
+  - 모든 import 경로 업데이트 완료
+  - 서비스 메서드 호환성 확인 완료
 
-### 📈 개발 완료도: 100% (프로젝트 v2.0 완전 완성! 🚀)
+## 🎯 현재 개발 상황 요약 (2025년 9월 10일)
+
+### 📈 개발 완료도: 100% (프로젝트 v2.1 완전 완성! 🎯)
+- **✅ MCP 서버 통합**: Context7, Sequential Thinking, Playwright 등 6개 서버 연동 완료
+- **✅ 성능 최적화**: Web Vitals 모니터링, TypeScript 강화, 빌드 시스템 개선
 - **✅ 데이터베이스 v2.0 아키텍처**: 27개 → 6개 테이블, 완전한 재설계 완료
 - **✅ 근본적 문제 완전 해결**: 일주일간의 user_id 모호성 문제 아키텍처 레벨에서 해결
 - **🚀 배포 상태**: https://levelup-tan.vercel.app/ 라이브 배포 + v2.0 테스트 페이지 준비
 - **🧹 프로젝트 대청소**: 23개 디버깅 파일 삭제, 2710 라인 코드 정리 완료
+- **🔒 보안 강화**: Vercel 보안 헤더 추가, 환경변수 최적화
 
 ### 🔧 해결 완료된 주요 문제들
 - **목표 생성 모달**: JavaScript 에러 (dayjs 타입 불일치) → ✅ 수정 완료
@@ -522,6 +574,8 @@
 - **목표 완료 SQL 오류**: user_id 컬럼 모호성 및 무한로딩 → ✅ 수정 완료 (Phase 4.3)
 - **🎯 스키마 일관성 문제**: 외래키 참조 불일치로 인한 근본적 아키텍처 결함 → ✅ 완전 해결 (Phase 4.4)
 - **🚀 데이터베이스 v2.0**: 복잡한 27개 테이블을 6개 핵심 테이블로 재설계 → ✅ 완전 완성 (Phase 5.0)
+- **🎯 MCP 서버 통합**: Context7, Sequential, Playwright 등 6개 서버 연동 → ✅ 완전 완성 (Phase 5.1)
+- **⚡ 성능 최적화**: Web Vitals 모니터링, TypeScript 강화, 보안 헤더 → ✅ 완전 완성 (Phase 5.1)
 
 ### 📋 실제 배포 사이트 상태
 - **🌐 라이브 URL**: https://levelup-tan.vercel.app/

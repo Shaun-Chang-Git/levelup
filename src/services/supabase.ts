@@ -25,18 +25,17 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   },
 });
 
-// 데이터베이스 타입 정의를 위한 헬퍼 타입
+// 데이터베이스 타입 정의 (v2.0 스키마 호환)
 export type Database = {
   public: {
     Tables: {
-      users: {
+      user_profiles: {
         Row: {
           id: string;
-          email: string;
-          full_name: string | null;
-          avatar_url: string | null;
-          level: number;
-          experience: number;
+          email: string | null;
+          display_name: string | null;
+          total_points: number;
+          current_level: number;
           created_at: string;
           updated_at: string;
         };

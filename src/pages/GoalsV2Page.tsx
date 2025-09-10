@@ -13,13 +13,14 @@ import {
   Chip
 } from '@mui/material';
 import { Add as AddIcon, CheckCircle as CompleteIcon } from '@mui/icons-material';
-import { GoalsServiceV2, type GoalV2, type UserProfileV2 } from '../services/goalsServiceV2';
+import { GoalsService } from '../services/goalsService';
+import { Goal } from '../types';
 import { useAuth } from '../contexts/AuthContext';
 
 export const GoalsV2Page: React.FC = () => {
   const { user } = useAuth();
-  const [goals, setGoals] = useState<GoalV2[]>([]);
-  const [profile, setProfile] = useState<UserProfileV2 | null>(null);
+  const [goals, setGoals] = useState<Goal[]>([]);
+  const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -36,8 +37,8 @@ export const GoalsV2Page: React.FC = () => {
       
       // 프로필과 목표 동시 로드
       const [profileData, goalsData] = await Promise.all([
-        GoalsServiceV2.getUserProfile(user.id),
-        GoalsServiceV2.getGoals(user.id)
+        GoalsService.getUserProfile(user.id),
+        GoalsService.getUserGoals(user.id)
       ]);
       
       console.log('Profile loaded:', profileData);
@@ -75,7 +76,7 @@ export const GoalsV2Page: React.FC = () => {
       
       console.log('Creating test goal:', testGoal);
       
-      const newGoal = await GoalsServiceV2.createGoal(testGoal);
+      const newGoal = await GoalsService.createGoal(testGoal);
       console.log('Goal created:', newGoal);
       
       setGoals(prev => [newGoal, ...prev]);
@@ -97,7 +98,7 @@ export const GoalsV2Page: React.FC = () => {
       
       console.log('Completing goal:', goalId);
       
-      const result = await GoalsServiceV2.completeGoal(goalId);
+      const result = await GoalsService.completeGoal(goalId);
       console.log('Completion result:', result);
       
       setSuccess(`목표 완료! ${result.points_earned} 포인트 획득!`);

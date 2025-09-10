@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Goal, Category } from '../types';
-import { GoalsServiceV2 } from '../services/goalsServiceV2';
+import { GoalsService } from '../services/goalsService';
 import { useAuth } from '../contexts/AuthContext';
 
 export const useGoals = () => {
@@ -35,7 +35,7 @@ export const useGoals = () => {
       console.log('Category ID:', categoryId);
       console.log('Status:', status);
       
-      const goalsData = await GoalsServiceV2.getGoals(user.id, categoryId, status);
+      const goalsData = await GoalsService.getUserGoals(user.id, categoryId, status);
       console.log('Goals loaded successfully:', goalsData.length, 'goals');
       setGoals(goalsData);
     } catch (err) {
@@ -136,7 +136,7 @@ export const useGoals = () => {
       console.log('=== useGoals completeGoal START ===');
       console.log('Goal ID:', goalId);
       
-      const result = await GoalsServiceV2.completeGoal(goalId);
+      const result = await GoalsService.completeGoal(goalId);
       console.log('=== completeGoal SERVICE RESULT ===');
       console.log('Result:', result);
       console.log('Result type:', typeof result);
