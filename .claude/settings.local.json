@@ -13,7 +13,14 @@
       "Bash(npm outdated)",
       "Bash(npm run build:*)",
       "WebSearch",
-      "WebFetch(domain:supabase.com)"
+      "WebFetch(domain:supabase.com)",
+      "Bash(git rev-parse:*)",
+      "Bash(curl:*)",
+      "Bash(mcp list-servers:*)",
+      "Bash(vercel:*)",
+      "Bash(git show:*)",
+      "Read(//c/**)",
+      "WebFetch(domain:levelup-tan.vercel.app)"
     ],
     "deny": [],
     "ask": []
