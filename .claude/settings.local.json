@@ -20,7 +20,8 @@
       "Bash(vercel:*)",
       "Bash(git show:*)",
       "Read(//c/**)",
-      "WebFetch(domain:levelup-tan.vercel.app)"
+      "WebFetch(domain:levelup-tan.vercel.app)",
+      "Bash(git fetch origin)"
     ],
     "deny": [],
     "ask": []
