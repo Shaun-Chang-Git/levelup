@@ -42,7 +42,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
   const [formData, setFormData] = useState({
     title: '',
     description: '',
-    category_id: '',
+    category_id: 0,
     difficulty: 'medium' as 'easy' | 'medium' | 'hard' | 'expert',
     target_value: '',
     unit: '',
@@ -96,7 +96,7 @@ const CreateGoalModal: React.FC<CreateGoalModalProps> = ({
       setFormData({
         title: '',
         description: '',
-        category_id: '',
+        category_id: 0,
         difficulty: 'medium',
         target_value: '',
         unit: '',

@@ -40,10 +40,9 @@ const GoalCard: React.FC<GoalCardProps> = ({
   const theme = useTheme();
   const { isMobile } = useResponsive();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const progressPercentage = Math.min(
-    (goal.currentValue / goal.targetValue) * 100, 
-    100
-  );
+  const progressPercentage = goal.target_value 
+    ? Math.min((goal.current_value / goal.target_value) * 100, 100)
+    : 0;
 
   const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -105,8 +104,8 @@ const GoalCard: React.FC<GoalCardProps> = ({
 
   const handleProgressUpdate = (): void => {
     const newProgress = prompt(
-      `현재 진행상황을 입력하세요 (${goal.unit}):`,
-      goal.currentValue.toString()
+      `현재 진행상황을 입력하세요 (${goal.unit || '단위'}):`,
+      goal.current_value.toString()
     );
     
     if (newProgress && !isNaN(Number(newProgress))) {
@@ -123,9 +122,9 @@ const GoalCard: React.FC<GoalCardProps> = ({
     });
   };
 
-  const isOverdue = goal.deadline && new Date(goal.deadline) < new Date() && goal.status === GoalStatus.ACTIVE;
-  const daysLeft = goal.deadline ? 
-    Math.ceil((new Date(goal.deadline).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
+  const isOverdue = goal.target_date && new Date(goal.target_date) < new Date() && goal.status === GoalStatus.ACTIVE;
+  const daysLeft = goal.target_date ? 
+    Math.ceil((new Date(goal.target_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)) : 
     null;
 
   return (
@@ -206,7 +205,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
         <Box sx={{ mb: 2 }}>
           <LinearProgress
             variant="determinate"
-            value={progressPercentage}
+            value={isNaN(progressPercentage) ? 0 : progressPercentage}
             sx={{
               height: { xs: 8, sm: 10 },
               borderRadius: 5,
@@ -219,7 +218,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
           />
           <Box sx={{ display: 'flex', justifyContent: 'space-between', mt: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              {goal.currentValue.toLocaleString()} / {goal.targetValue.toLocaleString()} {goal.unit}
+              {goal.current_value.toLocaleString()} / {goal.target_value?.toLocaleString() || '∞'} {goal.unit || ''}
             </Typography>
             <Typography variant="body2" color="text.primary" fontWeight={600}>
               {Math.round(progressPercentage)}%
@@ -240,7 +239,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
             }}
           />
 
-          {goal.deadline && (
+          {goal.target_date && (
             <Typography 
               variant="caption" 
               color={isOverdue ? "error.main" : "text.secondary"}
@@ -249,7 +248,7 @@ const GoalCard: React.FC<GoalCardProps> = ({
                 fontWeight: isOverdue ? 600 : 400
               }}
             >
-              📅 {formatDeadline(goal.deadline)}
+              📅 {formatDeadline(goal.target_date)}
               {daysLeft !== null && (
                 <span>
                   {daysLeft > 0 ? ` (${daysLeft}일 남음)` : ' (마감)'}

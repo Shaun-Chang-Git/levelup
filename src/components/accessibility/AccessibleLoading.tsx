@@ -63,7 +63,7 @@ const AccessibleLoading: React.FC<AccessibleLoadingProps> = ({
             </Typography>
             <LinearProgress
               variant={progress !== undefined ? 'determinate' : 'indeterminate'}
-              value={progress}
+              value={progress ?? undefined}
               aria-describedby="loading-description"
               aria-label={`진행률: ${progress !== undefined ? `${Math.round(progress)}%` : '진행 중'}`}
             />
@@ -98,7 +98,7 @@ const AccessibleLoading: React.FC<AccessibleLoadingProps> = ({
             <CircularProgress
               size={getSizeValue()}
               variant={progress !== undefined ? 'determinate' : 'indeterminate'}
-              value={progress}
+              value={progress ?? undefined}
               aria-label={`로딩 진행률: ${progress !== undefined ? `${Math.round(progress)}%` : '진행 중'}`}
             />
             <Typography

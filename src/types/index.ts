@@ -13,12 +13,10 @@ export interface User {
 // 사용자 프로필 타입 (v2.0 user_profiles 테이블)
 export interface Profile {
   id: string;
-  email: string;
-  display_name?: string;
-  avatar_url?: string;
+  email: string | null;
+  display_name: string | null;
   total_points: number;
-  level: number;
-  experience_points: number;
+  current_level: number;
   created_at: string;
   updated_at: string;
 }
@@ -46,7 +44,7 @@ export interface Goal {
   current_value: number;
   unit?: string; // v2.0에서 제거됨
   status: 'active' | 'completed' | 'paused' | 'cancelled';
-  difficulty: 'easy' | 'medium' | 'hard'; // expert 제거
+  difficulty: 'easy' | 'medium' | 'hard' | 'expert';
   target_date?: string;
   created_at: string;
   updated_at: string;

@@ -21,7 +21,10 @@
       "Bash(git show:*)",
       "Read(//c/**)",
       "WebFetch(domain:levelup-tan.vercel.app)",
-      "Bash(git fetch origin)"
+      "Bash(git fetch origin)",
+      "Bash(npm ls:*)",
+      "Bash(npm run type-check:*)",
+      "Bash(npm run:*)"
     ],
     "deny": [],
     "ask": []

@@ -129,7 +129,7 @@ export const AccessibleTextField: React.FC<AccessibleTextFieldProps> = ({
         onBlur={handleBlur}
         error={hasError}
         fullWidth
-        autoComplete={autoComplete}
+        autoComplete={autoComplete || undefined}
         inputProps={{
           ...props.inputProps,
           inputMode,
